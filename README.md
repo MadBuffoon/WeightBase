@@ -1,15 +1,19 @@
 ﻿# Summary
 Removes stack size and allows you to change the Weight.<br/>
-Also addes weight limts to your ships and change the inventory size of the ships.<br/>
+Also lets you change the inventory size of the ships.<br/>
+Also Change how you see large stack size and weight numbers to a smiple look like 1.0k applies to all Inventories
 
-This does have server sync but currently working on fixing how it updates the stack size and weight.<br/>
-Cause in order to get the changes you need to restart your game.<br/>
+To get updated changes you need to log out and back in.<br/>
+
 ---
+
 The base code came from SaneInventory.<br/>
 I did reach out the mod owner and he gave me the okay to use the code.<br/>
 https://valheim.thunderstore.io/package/remmiz/SaneInventory/<br/>
 https://github.com/remmizekim/ValheimMods/<br/>
+
 ---
+
 <details>
 <summary><b> 
  ChangeLog 
@@ -19,9 +23,15 @@ https://github.com/remmizekim/ValheimMods/<br/>
 
 | Version | Changes |
 |----|----|
+| 1.0.2 | - Removed Ship weight limit for now.<br/> - Change how it updates stack size and weight.(All you need to do to get updated changes is to log out and back in.)<br/> - Change how you see large stack size and weight numbers to a smiple look like 1.0k applies to all Inventories<br/> - Change the stack size from 2,147,483,647 to 1,000,000 cause it was causing crashing.<br/>
 | 1.0.1 | - Read Me update to include the OG mod links.<br/> - Fixed the Max weight not updating to your current max weight limit.<br/>
 | 1.0.0 | - Release<br/>
 </details> 
+
+---
+
+### Thanks
+Thanks to GoldenRevolver for helping fix and teaching me on some better ways of doing things in the code.
 
 ---
 

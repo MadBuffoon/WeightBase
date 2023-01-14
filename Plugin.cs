@@ -8,6 +8,9 @@ using HarmonyLib;
 using ServerSync;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.SceneManagement;
+using WeightBase.Tools;
 
 namespace WeightBase
 {
@@ -15,7 +18,7 @@ namespace WeightBase
     public class WeightBasePlugin : BaseUnityPlugin
     {
         internal const string ModName = "WeightBase";
-        internal const string ModVersion = "1.0.1";
+        internal const string ModVersion = "1.0.2";
         internal const string Author = "MadBuffoon";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -47,9 +50,9 @@ namespace WeightBase
                 "If on, the configuration is locked and can be changed by server admins only.");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
-            DebugLoggingConfig = config("1 - General", "1.2 DeBug Logging", false,
+            /*DebugLoggingConfig = config("1 - General", "1.2 DeBug Logging", false,
                 "This turns on console debug msgs.");
-            _ = ConfigSync.AddConfigEntry(DebugLoggingConfig);
+            _ = ConfigSync.AddConfigEntry(DebugLoggingConfig);*/
 
             itemUnlimitedStackEnabledConfig = config("2 - Settings", "2.1 Remove Stack Limit", true,
                 "Should item stack size limit be removed? Will need to restart game/server!");
@@ -62,9 +65,10 @@ namespace WeightBase
                     "How much an item weighs. 1 is normal weight and 2 being 2x the normal weight then 0.5 is half normal weight. ",
                     new AcceptableValueRange<float>(0f, 2f)));
             _ = ConfigSync.AddConfigEntry(itemWeightConfig);
-            containerWeightLimitEnabledConfig = config("2 - Settings", "2.3 Ships have weight limit", true,
+            
+           /*containerWeightLimitEnabledConfig = config("2 - Settings", "2.3 Ships have weight limit", true,
                 "Should containers have weight limits?");
-            _ = ConfigSync.AddConfigEntry(containerWeightLimitEnabledConfig);
+            _ = ConfigSync.AddConfigEntry(containerWeightLimitEnabledConfig);*/
 
             // 3 - ShipKarveCargoIncrease
             shipKarveCargoIncreaseEnabledConfig = config("3 - Karve Ship", "3.1 Enabled", true,
@@ -80,9 +84,9 @@ namespace WeightBase
                 new ConfigDescription("Number of rows for the Karve cargo hold. Max of 3.",
                     new AcceptableValueList<int>(1, 2, 3, 4)));
             _ = ConfigSync.AddConfigEntry(shipKarveCargoIncreaseRowsConfig);
-            shipKarveCargoWeightLimitConfig =
+            /*shipKarveCargoWeightLimitConfig =
                 config("3 - Karve Ship", "3.4 Weight Limit", 1200, "Weight limit for the Karve");
-            _ = ConfigSync.AddConfigEntry(shipKarveCargoWeightLimitConfig);
+            _ = ConfigSync.AddConfigEntry(shipKarveCargoWeightLimitConfig);*/
 
             // 4 - Viking
             shipvikingCargoIncreaseEnabledConfig = config("4 - Viking Ship", "4.1 Enabled", true,
@@ -98,9 +102,9 @@ namespace WeightBase
                 new ConfigDescription("Number of rows for the viking cargo hold. Max of 4.",
                     new AcceptableValueList<int>(1, 2, 3, 4)));
             _ = ConfigSync.AddConfigEntry(shipvikingCargoIncreaseRowsConfig);
-            shipvikingCargoWeightLimitConfig = config("4 - Viking Ship", "4.4 Weight Limit", 4200,
+            /*shipvikingCargoWeightLimitConfig = config("4 - Viking Ship", "4.4 Weight Limit", 4200,
                 "Weight limit for the Longship");
-            _ = ConfigSync.AddConfigEntry(shipvikingCargoWeightLimitConfig);
+            _ = ConfigSync.AddConfigEntry(shipvikingCargoWeightLimitConfig);*/
 
             // 5 - Custom Ships
             shipCustomCargoIncreaseEnabledConfig = config("5 - Custom Ship", "5.1 Enabled", true,
@@ -116,9 +120,9 @@ namespace WeightBase
                 new ConfigDescription("Number of rows for the Custom cargo hold. Max of 4.",
                     new AcceptableValueList<int>(1, 2, 3, 4)));
             _ = ConfigSync.AddConfigEntry(shipCustomCargoIncreaseRowsConfig);
-            CustomShipWeightLimitConfig = config("5 - Custom Ship", "5.4 Weight Limit", 4200,
+            /*CustomShipWeightLimitConfig = config("5 - Custom Ship", "5.4 Weight Limit", 4200,
                 "Weight limit for the Custom Ships");
-            _ = ConfigSync.AddConfigEntry(CustomShipWeightLimitConfig);
+            _ = ConfigSync.AddConfigEntry(CustomShipWeightLimitConfig);*/
 
             /*
             woodChestWeightLimitConfig = config("5 - ContainerWeightLimit", "wood chest weight limit", 1000,
@@ -163,36 +167,88 @@ namespace WeightBase
         }
 
 
-        [HarmonyPatch(typeof(ObjectDB), "Awake")]
+        [HarmonyPatch(typeof(Inventory), nameof(Inventory.GetTotalWeight))]
+        static class TotalWeightFix
+        {
+            static bool Prefix(Inventory __instance)
+            {
+                try
+                {
+                    float totalWeight = 0f;
+                    foreach (ItemDrop.ItemData itemData in __instance.m_inventory)
+                    {
+                        totalWeight += itemData.GetWeight();
+                    }
+                }
+                catch (OverflowException)
+                {
+                    __instance.m_totalWeight = float.MaxValue;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.Awake))]
+        [HarmonyPriority(Priority.Last + 1)] // To load last but not the last. This is to load after every mod to get the modded items.
         static class UpdateItemsLoad
         {
             static void Postfix(ObjectDB __instance)
             {
-                if (itemUnlimitedStackEnabledConfig.Value || itemWeightEnabledConfig.Value)
-                {
-                    foreach (ItemDrop.ItemData.ItemType type in (ItemDrop.ItemData.ItemType[])Enum.GetValues(
-                                 typeof(ItemDrop.ItemData.ItemType)))
-                    {
-                        foreach (ItemDrop item in __instance.GetAllItems(type, ""))
-                        {
-                            if (item.m_itemData.m_shared.m_name.StartsWith("$item_"))
-                            {
-                                if (itemUnlimitedStackEnabledConfig.Value &&   item.m_itemData.m_shared.m_maxStackSize > 1)
-                                {
-                                    item.m_itemData.m_shared.m_maxStackSize = Int32.MaxValue;
-                                };
-                                if (itemWeightEnabledConfig.Value)
-                                {
-                                    item.m_itemData.m_shared.m_weight *= itemWeightConfig.Value;
-                                }
-                                
-                            }
-                        }
-                    }
-                }
+                UpdateItemDatabase(__instance);
             }
         }
-        
+
+        static void UpdateItemDatabase(ObjectDB __instance)
+        {
+
+            if (!itemUnlimitedStackEnabledConfig.Value && !itemWeightEnabledConfig.Value)
+            {
+                return;
+            }
+
+            foreach (GameObject gameObject in __instance.m_items)
+            {
+                ItemDrop item = gameObject.GetComponent<ItemDrop>();
+
+                if (item == null || item.m_itemData == null || item.m_itemData.m_shared == null)
+                {
+                    continue;
+                }
+
+                var shared = item.m_itemData.m_shared;
+                if (!ogItemCaches.ContainsKey(shared.m_name))
+                {
+                    ogItemCaches.Add(shared.m_name, new ItemCache(shared.m_name, shared.m_maxStackSize, shared.m_weight));
+                }
+                
+                // Stack Size
+                if (shared.m_maxStackSize > 1)
+                {
+                    shared.m_maxStackSize = itemUnlimitedStackEnabledConfig.Value ? 1000000: ogItemCaches[shared.m_name].ItemStackOG;
+                    /*if (itemUnlimitedStackEnabledConfig.Value)
+                    {
+                        shared.m_maxStackSize = Int32.MaxValue;
+                    }
+                    else
+                    {
+                        shared.m_maxStackSize = ogItemCaches[shared.m_name].ItemStackOG;
+                    }*/
+                }
+
+                // Weight
+                if (itemWeightEnabledConfig.Value)
+                {
+                    shared.m_weight = ogItemCaches[shared.m_name].ItemWeightOG * itemWeightConfig.Value;
+                }
+                else
+                {
+                    shared.m_weight = ogItemCaches[shared.m_name].ItemWeightOG;
+                }
+                
+            }
+        }
 
         [HarmonyPatch(typeof(Ship), "Awake")]
         static class UpdateShipCargoSize
@@ -206,7 +262,6 @@ namespace WeightBase
                         Container container = __instance.gameObject.transform.GetComponentInChildren<Container>();
                         if (container != null)
                         {
-
                             container.m_width = Math.Min(shipKarveCargoIncreaseColumnsConfig.Value, 6);
                             container.m_height = Math.Min(shipKarveCargoIncreaseRowsConfig.Value, 3);
                         }
@@ -220,19 +275,18 @@ namespace WeightBase
                         Container container = __instance.gameObject.transform.GetComponentInChildren<Container>();
                         if (container != null)
                         {
-
                             container.m_width = Math.Min(shipvikingCargoIncreaseColumnsConfig.Value, 8);
                             container.m_height = Math.Min(shipvikingCargoIncreaseRowsConfig.Value, 4);
                         }
                     }
                 }
+                
 
                 if (shipCustomCargoIncreaseEnabledConfig.Value)
                 {
                     Container container = __instance.gameObject.transform.GetComponentInChildren<Container>();
                     if (container != null)
                     {
-
                         container.m_width = Math.Min(shipvikingCargoIncreaseColumnsConfig.Value, 8);
                         container.m_height = Math.Min(shipCustomCargoIncreaseRowsConfig.Value, 4);
                     }
@@ -255,7 +309,7 @@ namespace WeightBase
                         {
                             InventoryGrid.Element e = __instance.GetElement(allItem.m_gridPos.x, allItem.m_gridPos.y,
                                 width);
-                            e.m_amount.text = allItem.m_stack.ToString();
+                            e.m_amount.text = Helper.FormatNumberSimple(allItem.m_stack);
                         }
                     }
                 }
@@ -283,7 +337,7 @@ namespace WeightBase
                                 HotkeyBar.ElementData elementData2 = ___m_elements[itemData.m_gridPos.x];
                                 if (itemData.m_shared.m_maxStackSize > 1)
                                 {
-                                    elementData2.m_amount.text = itemData.m_stack.ToString();
+                                    elementData2.m_amount.text = Helper.FormatNumberSimple(itemData.m_stack);
                                 }
                             }
                             catch
@@ -291,13 +345,15 @@ namespace WeightBase
                                 HotkeyBar.ElementData elementData2 = __instance.m_elements[itemData.m_gridPos.x - 5];
                                 if (itemData.m_shared.m_maxStackSize > 1)
                                 {
-                                    elementData2.m_amount.text = itemData.m_stack.ToString();
+                                    elementData2.m_amount.text = Helper.FormatNumberSimple(itemData.m_stack);
                                 }
                             }
                         }
                     }
                 }
             }
+
+            
         }
 
         [HarmonyPatch(typeof(InventoryGui), "UpdateContainerWeight")]
@@ -305,12 +361,20 @@ namespace WeightBase
         {
             static void Postfix(InventoryGui __instance, Container ___m_currentContainer)
             {
-                if (containerWeightLimitEnabledConfig.Value)
-                {
-                    if (___m_currentContainer == null || !__instance.m_currentContainer.transform.parent)
-                        return;
+                
 
-                    float maxWeight;
+                //if (___m_currentContainer == null || !___m_currentContainer.transform.parent) return;
+                if (___m_currentContainer == null) return;
+                int totalWeight = Mathf.CeilToInt(___m_currentContainer.GetInventory().GetTotalWeight());
+                
+                __instance.m_containerWeight.text = Helper.FormatNumberSimple(totalWeight);
+                
+                /*if (!containerWeightLimitEnabledConfig.Value)
+                {
+                    return;
+                }*/
+                /*if (___m_currentContainer.m_rootObjectOverride == null || !___m_currentContainer.m_rootObjectOverride.gameObject.GetComponent<Ship>()) return; // Checks to make sure its a SHIP!
+                float maxWeight;
 
                     /*
                     if (!__instance.m_currentContainer.transform.parent)
@@ -318,7 +382,7 @@ namespace WeightBase
                         maxWeight = getContainerMaxWeight(___m_currentContainer.m_inventory.m_name);
                     }
                     else
-                    {*/
+                    {#1#
                     maxWeight = getShipMaxWeight(___m_currentContainer.transform.parent.name);
                     //}
 
@@ -333,8 +397,8 @@ namespace WeightBase
                         else
                             __instance.m_containerWeight.text = "" + totalWeight.ToString() + "\n<color=white>" +
                                                                 maxWeight.ToString() + "</color>";
-                    }
-                }
+                    }*/
+                
             }
         }
 
@@ -343,18 +407,17 @@ namespace WeightBase
         {
             static void Postfix(InventoryGui __instance, Player player)
             {
-                if (containerWeightLimitEnabledConfig.Value)
-                {
-                    float currentwight = (float)Math.Round(player.m_inventory.m_totalWeight);
+                
+                    float currentWeight = (float)Math.Round(player.m_inventory.m_totalWeight);
                     float MaxCarryWeight = player.GetMaxCarryWeight();
 
-                    if (currentwight > MaxCarryWeight && (double)Mathf.Sin(Time.time * 10f) > 0.0)
-                        __instance.m_weight.text = "<color=red>" + currentwight.ToString() + "</color>\n<color=white>" +
-                                                   MaxCarryWeight.ToString() + "</color>";
+                    if (currentWeight > MaxCarryWeight && (double)Mathf.Sin(Time.time * 10f) > 0.0)
+                        __instance.m_weight.text = "<color=red>" + Helper.FormatNumberSimple(currentWeight) + "</color>\n<color=white>" +
+                                                   Helper.FormatNumberSimple(MaxCarryWeight) + "</color>";
                     else
-                        __instance.m_weight.text = "" + currentwight.ToString() + "\n<color=white>" +
-                                                   MaxCarryWeight.ToString() + "</color>";
-                }
+                        __instance.m_weight.text = "" + Helper.FormatNumberSimple(currentWeight) + "\n<color=white>" +
+                                                   Helper.FormatNumberSimple(MaxCarryWeight) + "</color>";
+                
 
                 /*if (containerWeightLimitEnabledConfig.Value)
                 {
@@ -371,33 +434,62 @@ namespace WeightBase
             }
         }
 
+        /*
+        [HarmonyPatch(typeof(Ship), nameof(Ship.Awake))]
+        static class GetShipMass
+        {
+            static void Postfix(Ship __instance)
+            {
+                
+                Container container = __instance.gameObject.transform.GetComponentInChildren<Container>();
+                if (!container) return;
+                if (!container.m_nview) return;
+                
+                var shipID = container.m_nview.m_zdo.m_uid;
+                if (!shipBaseMasses.ContainsKey(shipID))
+                {
+                    shipBaseMasses.Add(shipID, __instance.m_body.mass);
+                }
+                
+            }
+        }
 
-        [HarmonyPatch(typeof(Ship), "FixedUpdate")]
+        [HarmonyPatch(typeof(Ship), nameof(Ship.FixedUpdate))]
         static class ApplyShipWeightForce
         {
             static void Postfix(Ship __instance, Rigidbody ___m_body)
             {
                 // TODO: Add drag to ship if overweight
-                if (containerWeightLimitEnabledConfig.Value)
+                if (!containerWeightLimitEnabledConfig.Value) return;
+                
+                
+                Container container = __instance.gameObject.transform.GetComponentInChildren<Container>();
+                if (!container) return;
+                
+                var shipID = container.m_nview.m_zdo.m_uid;
+                if (!shipBaseMasses.ContainsKey(shipID))
                 {
-
-                    Container container = __instance.gameObject.transform.GetComponentInChildren<Container>();
-                    if (container != null)
-                    {
-                        float maxWeight = getShipMaxWeight(__instance.name);
-
-                        float containerWeight = container.GetInventory().GetTotalWeight();
-
-                        if (containerWeight > maxWeight)
-                        {
-                            float weightForce = (containerWeight - maxWeight) / maxWeight;
-                            ___m_body.AddForceAtPosition(Vector3.down * weightForce * 5, ___m_body.worldCenterOfMass,
-                                (ForceMode)2);
-                        }
-                    }
+                    shipBaseMasses.Add(shipID, __instance.m_body.mass);
                 }
+
+                float shipBaseMass = shipBaseMasses[shipID];
+                
+                //float maxWeight = getShipMaxWeight(__instance.name);
+
+                float containerWeight = container.GetInventory().GetTotalWeight();
+                
+                ___m_body.mass = shipBaseMass + containerWeight * 2f;
+
+
+                /*if (containerWeight > maxWeight)
+                {
+                    float weightForce = (containerWeight - maxWeight) / maxWeight;
+                    //___m_body.AddForceAtPosition(Vector3.down * weightForce * 5, ___m_body.worldCenterOfMass, ForceMode.VelocityChange);
+
+                }#1#
             }
-        }
+        }*/
+
 
         /*
         static float getContainerMaxWeight(string name)
@@ -417,7 +509,7 @@ namespace WeightBase
         */
 
 
-        static float getShipMaxWeight(string name)
+        /*static float getShipMaxWeight(string name)
         {
             if (name.ToLower().Contains("karve"))
             {
@@ -426,13 +518,12 @@ namespace WeightBase
 
             if (name.ToLower().Contains("vikingship"))
             {
-
                 return shipvikingCargoWeightLimitConfig.Value;
             }
 
             // unlimited weight for custom ship mods
             return CustomShipWeightLimitConfig.Value;
-        }
+        }*/
 
 
         private void OnDestroy()
@@ -471,7 +562,7 @@ namespace WeightBase
         #region ConfigOptions
 
         private static ConfigEntry<Toggle> _serverConfigLocked = null!;
-        private static ConfigEntry<bool> DebugLoggingConfig = null!;
+        //private static ConfigEntry<bool> DebugLoggingConfig = null!;
 
         private static ConfigEntry<bool> itemUnlimitedStackEnabledConfig = null!;
         private static ConfigEntry<bool> itemWeightEnabledConfig = null!;
@@ -489,10 +580,13 @@ namespace WeightBase
         private static ConfigEntry<int> shipCustomCargoIncreaseColumnsConfig = null!;
         private static ConfigEntry<int> shipCustomCargoIncreaseRowsConfig = null!;
 
-        private static ConfigEntry<bool> containerWeightLimitEnabledConfig = null!;
-        private static ConfigEntry<int> shipKarveCargoWeightLimitConfig = null!;
-        private static ConfigEntry<int> shipvikingCargoWeightLimitConfig = null!;
-        private static ConfigEntry<int> CustomShipWeightLimitConfig = null!;
+       // private static ConfigEntry<bool> containerWeightLimitEnabledConfig = null!;
+       // private static ConfigEntry<int> shipKarveCargoWeightLimitConfig = null!;
+       // private static ConfigEntry<int> shipvikingCargoWeightLimitConfig = null!;
+        //private static ConfigEntry<int> CustomShipWeightLimitConfig = null!;
+
+        private static Dictionary<string, ItemCache> ogItemCaches = new Dictionary<string, ItemCache>();
+        private static Dictionary<ZDOID, float> shipBaseMasses = new Dictionary<ZDOID, float>();
 
         /*
         private static ConfigEntry<int> woodChestWeightLimitConfig = null!;
