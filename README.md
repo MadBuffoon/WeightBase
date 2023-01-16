@@ -16,6 +16,27 @@ https://github.com/remmizekim/ValheimMods/<br/>
 
 <details>
 <summary><b> 
+ Ship Weight Penalties 
+</b></summary>
+
+Ship Weight Penalties<br/>
+- What Weight counts?<br/>
+  Looks at the weight in the ship's cargo and all the players on the ship.<br/>
+- Weight Limit?<br/>
+  Weight limit is base on the mass of the ship.<br/>
+  You can see a % in the cargo inventory for the % of weight to Max Weight<br/>
+- Config Options?<br/>
+  You have access to a scale witch scales the mass of the ship up to increase the weight you can have on the ship.<br/>
+  You can turn on "Got Weight?" to see when the ship is over weight.<br/>
+  You can turn on "Sinking" to have the ship sink if over weight at 150%<br/>
+  Also yes you can turn off the weight penalties.<br/>
+  
+
+
+</details> 
+
+<details>
+<summary><b> 
  Config 
 </b></summary>
 
