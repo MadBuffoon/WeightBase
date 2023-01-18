@@ -95,7 +95,7 @@ public class UI
             //if (___m_currentContainer == null || !___m_currentContainer.transform.parent) return;
             if (___m_currentContainer == null) return;
             //var totalWeight = Mathf.CeilToInt(___m_currentContainer.GetInventory().GetTotalWeight());
-           var totalWeight = ___m_currentContainer.m_inventory.m_totalWeight;
+           var totalWeight = ___m_currentContainer.m_inventory.GetTotalWeight();
 
             __instance.m_containerWeight.text = Helper.FormatNumberSimple(totalWeight);
 
