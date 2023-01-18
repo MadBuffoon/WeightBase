@@ -32,6 +32,7 @@ public class UI
             }
         }
     }
+
     [HarmonyPatch(typeof(HotkeyBar), "UpdateIcons")]
     private static class HideMaxStackSizeHotkeyBar
     {
@@ -69,25 +70,26 @@ public class UI
             }
         }
     }
-    [HarmonyPatch(typeof(InventoryGui), "UpdateInventoryWeight")]
-    private static class DisplayPLayerMaxWeight
+    [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.UpdateInventoryWeight))]
+    static class DisplayPLayerMaxWeight
     {
-        private static void Postfix(InventoryGui __instance, Player player)
+        static void Postfix(InventoryGui __instance, Player player)
         {
-            var currentWeight = (float)Math.Round(player.m_inventory.m_totalWeight * 100f) / 100f;
-            var MaxCarryWeight = player.GetMaxCarryWeight();
+                
+            float currentWeight = (float)Math.Round(player.m_inventory.m_totalWeight * 100f) / 100f;
+            float MaxCarryWeight = player.GetMaxCarryWeight();
 
-            if (currentWeight > MaxCarryWeight && Mathf.Sin(Time.time * 10f) > 0.0)
-                __instance.m_weight.text = "<color=red>" + Helper.FormatNumberSimple(currentWeight) +
-                                           "</color>\n<color=white>" +
+            if (currentWeight > MaxCarryWeight && (double)Mathf.Sin(Time.time * 10f) > 0.0)
+                __instance.m_weight.text = "<color=red>" + Helper.FormatNumberSimple(currentWeight) + "</color>\n<color=white>" +
                                            Helper.FormatNumberSimple(MaxCarryWeight) + "</color>";
             else
                 __instance.m_weight.text = "" + Helper.FormatNumberSimple(currentWeight) + "\n<color=white>" +
                                            Helper.FormatNumberSimple(MaxCarryWeight) + "</color>";
         }
-    } 
-    //[HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.UpdateInventoryWeight))]
-    [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.UpdateInventoryWeight))]
+    }
+
+
+    [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.UpdateContainerWeight))]
     private static class DisplayContainerMaxWeight
     {
         private static void Postfix(InventoryGui __instance, Container ___m_currentContainer)
@@ -95,9 +97,10 @@ public class UI
             //if (___m_currentContainer == null || !___m_currentContainer.transform.parent) return;
             if (___m_currentContainer == null) return;
             //var totalWeight = Mathf.CeilToInt(___m_currentContainer.GetInventory().GetTotalWeight());
-           var totalWeight = ___m_currentContainer.m_inventory.GetTotalWeight();
+            var totalWeight = ___m_currentContainer.m_inventory.GetTotalWeight();
 
-            __instance.m_containerWeight.text = Helper.FormatNumberSimple(totalWeight);
+            
+            __instance.m_containerWeight.text = Helper.FormatNumberSimple(totalWeight).ToString();
 
             if (!WeightBasePlugin._shipMassToWeightEnabledConfig.Value)
             {
@@ -116,37 +119,32 @@ public class UI
             {
                 var shipBaseMass = Ships.shipBaseMasses[shipID] * WeightBasePlugin._shipMassScaleConfig.Value;
                 var currentShip = ___m_currentContainer.m_rootObjectOverride.gameObject.GetComponent<Ship>();
-                foreach (var player in currentShip.m_players)
+                foreach (var playerShip in currentShip.m_players)
                 {
-                    totalWeight += player.m_inventory.GetTotalWeight();
+                    totalWeight += playerShip.m_inventory.GetTotalWeight();
                 }
+
                 weightFacter = Mathf.Floor((totalWeight / shipBaseMass) * 100f);
             }
-            //}
+            
 
 
-            try
+
+            if (weightFacter > 100f && Mathf.Sin(Time.time * 10f) > 0.0)
             {
-                if (weightFacter > 100f && Mathf.Sin(Time.time * 10f) > 0.0)
-                {
-                    __instance.m_containerWeight.text = "" + Helper.FormatNumberSimple(totalWeight) +
-                                                        "\n<color=red>" + weightFacter +
-                                                        " %</color>";
-                }
-                else
-                {
-                    __instance.m_containerWeight.text =
-                        "" + Helper.FormatNumberSimple(totalWeight) + "\n<color=white>" +
-                        weightFacter + " %</color>";
-                }
+                __instance.m_containerWeight.text = "" + Helper.FormatNumberSimple(totalWeight).ToString() +
+                                                    "\n<color=red>" + weightFacter.ToString() +
+                                                    " %</color>";
             }
-            catch
+            else
             {
-                __instance.m_containerWeight.text = "Failed";
+                __instance.m_containerWeight.text =
+                    "" + Helper.FormatNumberSimple(totalWeight).ToString() + "\n<color=white>" +
+                    weightFacter.ToString() + " %</color>";
             }
         }
     }
-        
+
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.GetTotalWeight))]
     private static class TotalWeightFix
     {

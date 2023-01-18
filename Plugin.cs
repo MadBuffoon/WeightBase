@@ -95,9 +95,6 @@ public class WeightBasePlugin : BaseUnityPlugin
             "4.3 INV Height/Rows", 2,
             new ConfigDescription("Number of rows for the Karve cargo hold.\nDefault 2.",
                 new AcceptableValueList<int>(1, 2, 3, 4)));
-        /*shipKarveCargoWeightLimitConfig =
-            config("3 - Karve Ship", "3.4 Weight Limit", 1200, "Weight limit for the Karve");
-        _ = ConfigSync.AddConfigEntry(shipKarveCargoWeightLimitConfig);*/
 
         // 4 - Viking
         _shipvikingCargoIncreaseEnabledConfig = config("5 - Long Ship", "5.1 Enabled", false,
@@ -110,9 +107,6 @@ public class WeightBasePlugin : BaseUnityPlugin
             "5.3 INV Height/Rows", 3,
             new ConfigDescription("Number of rows for the viking cargo hold.\nDefault 3.",
                 new AcceptableValueList<int>(1, 2, 3, 4)));
-        /*shipvikingCargoWeightLimitConfig = config("4 - Viking Ship", "4.4 Weight Limit", 4200,
-            "Weight limit for the Longship");
-        _ = ConfigSync.AddConfigEntry(shipvikingCargoWeightLimitConfig);*/
 
         // 5 - Custom Ships
         _shipCustomCargoIncreaseEnabledConfig = config("6 - Custom Ship", "6.1 Enabled", false,
@@ -125,33 +119,6 @@ public class WeightBasePlugin : BaseUnityPlugin
             "6.3 INV Height/Rows", 3,
             new ConfigDescription("Number of rows for the Custom cargo hold.",
                 new AcceptableValueList<int>(1, 2, 3, 4)));
-
-        /*CustomShipWeightLimitConfig = config("5 - Custom Ship", "5.4 Weight Limit", 4200,
-            "Weight limit for the Custom Ships");
-        _ = ConfigSync.AddConfigEntry(CustomShipWeightLimitConfig);*/
-
-        /*
-        woodChestWeightLimitConfig = config("5 - ContainerWeightLimit", "wood chest weight limit", 1000,
-            "Weight limit for the Wood Chest"
-        );
-        _ = ConfigSync.AddConfigEntry(woodChestWeightLimitConfig);
-        personalChestWeightLimitConfig = config("5 - ContainerWeightLimit", "personal chest weight limit", 1000,
-            "Weight limit for the Personal Chest"
-        );
-        _ = ConfigSync.AddConfigEntry(personalChestWeightLimitConfig);
-        reinforcedChestWeightLimitConfig = config("5 - ContainerWeightLimit", "reinforced chest weight limit", 2000,
-            "Weight limit for the Reinforced Chest"
-        );
-        _ = ConfigSync.AddConfigEntry(reinforcedChestWeightLimitConfig);
-        blackMetalChestWeightLimitConfig = config("5 - ContainerWeightLimit", "blackmetal chest weight limit", 4000,
-            "Weight limit for the Black Metal Chest"
-        );
-        _ = ConfigSync.AddConfigEntry(blackMetalChestWeightLimitConfig);
-        CustomChestWeightLimitConfig = config("5 - ContainerWeightLimit", "Custom chest weight limit", 4000,
-            "Weight limit for the Custom Chest"
-        );
-        _ = ConfigSync.AddConfigEntry(CustomChestWeightLimitConfig);
-        */
         // End of Config Settings
 
         logger = Logger;

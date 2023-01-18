@@ -39,15 +39,17 @@ public class Ships
     {
         private static void Postfix(Ship __instance)
         {
+            var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
+            if (!container) return;
+            
             if (WeightBasePlugin._shipKarveCargoIncreaseEnabledConfig.Value)
             {
                 if (__instance.name.ToLower().Contains("karve"))
                 {
-                    var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
                     if (container != null)
                     {
-                        container.m_width = Math.Min(WeightBasePlugin._shipKarveCargoIncreaseColumnsConfig.Value, 6);
-                        container.m_height = Math.Min(WeightBasePlugin._shipKarveCargoIncreaseRowsConfig.Value, 3);
+                        container.m_width = Math.Min(WeightBasePlugin._shipKarveCargoIncreaseColumnsConfig.Value, 8);
+                        container.m_height = Math.Min(WeightBasePlugin._shipKarveCargoIncreaseRowsConfig.Value, 4);
                     }
                 }
             }
@@ -56,7 +58,6 @@ public class Ships
             {
                 if (__instance.name.ToLower().Contains("vikingship"))
                 {
-                    var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
                     if (container != null)
                     {
                         container.m_width = Math.Min(WeightBasePlugin._shipvikingCargoIncreaseColumnsConfig.Value, 8);
@@ -68,32 +69,22 @@ public class Ships
 
             if (WeightBasePlugin._shipCustomCargoIncreaseEnabledConfig.Value)
             {
-                var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
                 if (container != null)
                 {
                     container.m_width = Math.Min(WeightBasePlugin._shipCustomCargoIncreaseColumnsConfig.Value, 8);
                     container.m_height = Math.Min(WeightBasePlugin._shipCustomCargoIncreaseRowsConfig.Value, 4);
                 }
             }
-        }
-    }  
-    [HarmonyPatch(typeof(Ship), nameof(Ship.Awake))]
-    private static class GetShipMass
-    {
-        private static void Postfix(Ship __instance)
-        {
-            var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
-            if (!container) return;
+            
             if (!container.m_nview) return;
-
             var shipID = container.m_nview.m_zdo.m_uid;
             if (!shipBaseMasses.ContainsKey(shipID))
             {
                 shipBaseMasses.Add(shipID, __instance.m_body.mass);
             }
         }
-    }
-        [HarmonyPatch(typeof(Ship), nameof(Ship.FixedUpdate))]
+    } 
+    [HarmonyPatch(typeof(Ship), nameof(Ship.FixedUpdate))]
     private static class ApplyShipWeightForce
     {
         private static void Postfix(Ship __instance, Rigidbody ___m_body)
