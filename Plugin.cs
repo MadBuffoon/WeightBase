@@ -23,7 +23,7 @@ public class WeightBasePlugin : BaseUnityPlugin
     }
 
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.0.3";
+    internal const string ModVersion = "1.0.4";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private static readonly string ConfigFileName = ModGUID + ".cfg";
@@ -577,34 +577,47 @@ public class WeightBasePlugin : BaseUnityPlugin
                 weightFacter = Helper.FlipNumber(Helper.NumberRange(weightFacter, 0f, 0.5f, 0f, 1f));
             }*/
 
-            var weightFacter = shipBaseMass / (containerWeight + playersTotalWeight);
-            if (weightFacter <= 1f)
+            var weightFacter = (Mathf.Floor((containerWeight + playersTotalWeight) / shipBaseMass * 100f) / 100f) - 1f;
+            if (weightFacter > 0f)
             {
+                weightFacter *= 2f;
+                if (weightFacter > 0.9f) weightFacter = 1f;
+                
+                var fixedDeltaTime = Time.fixedDeltaTime;
                 //Sail
-                __instance.m_sailForce *= weightFacter;
-
-                // Rudder
-                /*if (__instance.m_speed == Ship.Speed.Slow)
+                //__instance.m_sailForce *= weightFacter;
+                /*if (__instance.m_speed == Ship.Speed.Half || __instance.m_speed == Ship.Speed.Full)
                 {
-                    Vector3 position = __instance.transform.position + __instance.transform.forward * __instance.m_stearForceOffset;
-                    float fixedDeltaTime = Time.fixedDeltaTime;
-                    Vector3 zero = Vector3.zero;
-                    zero += __instance.transform.forward * __instance.m_backwardForce *
-                            (1f - Mathf.Abs(__instance.m_rudderValue * (1f - weightFacter)));
-                    ___m_body.AddForceAtPosition((zero * -1f) * fixedDeltaTime, position, ForceMode.VelocityChange);
+                    Vector3 worldCenterOfMass = __instance.m_body.worldCenterOfMass;
+                    float sailSize = 0.0f;
+                    if (__instance.m_speed == Ship.Speed.Full)
+                        sailSize = 1f;
+                    else if (__instance.m_speed == Ship.Speed.Half)
+                        sailSize = 0.5f;
+                    var force = __instance.GetSailForce((sailSize * shipSpeed), fixedDeltaTime);
+                    ___m_body.AddForceAtPosition(force * -1.0f,
+                        worldCenterOfMass + __instance.transform.up * __instance.m_sailForceOffset,
+                        ForceMode.VelocityChange);
                 }*/
-
-
-                if (__instance.m_speed == Ship.Speed.Back || __instance.m_speed == Ship.Speed.Slow)
+                
+                if (__instance.m_speed == Ship.Speed.Half || __instance.m_speed == Ship.Speed.Full)
+                {
+                    Vector3 worldCenterOfMass = __instance.m_body.worldCenterOfMass;
+                    var force = (__instance.m_sailForce * -1.0f) * weightFacter;
+                    ___m_body.AddForceAtPosition( force,
+                        worldCenterOfMass + __instance.transform.up * __instance.m_sailForceOffset,
+                        ForceMode.VelocityChange);
+                }
+                // Rudder
+           if (__instance.m_speed == Ship.Speed.Back || __instance.m_speed == Ship.Speed.Slow)
                 {
                     var position = __instance.transform.position +
                                    __instance.transform.forward * __instance.m_stearForceOffset;
                     var zero = Vector3.zero;
-                    var fixedDeltaTime = Time.fixedDeltaTime;
                     var num14 = __instance.m_speed == Ship.Speed.Back ? 1f : -1f;
                     zero += __instance.transform.forward * __instance.m_backwardForce *
-                            (1f - Mathf.Abs(__instance.m_rudderValue * (1f - weightFacter)));
-                    ___m_body.AddForceAtPosition(zero * num14 * fixedDeltaTime, position, ForceMode.VelocityChange);
+                            (__instance.m_rudderValue * num14) * weightFacter;
+                    ___m_body.AddForceAtPosition(zero * fixedDeltaTime, position, ForceMode.VelocityChange);
                 }
 
 
@@ -612,7 +625,7 @@ public class WeightBasePlugin : BaseUnityPlugin
                 if (!_shipMassWeightLookEnableConfig.Value) return;
                 var weightPercent = (containerWeight + playersTotalWeight) / shipBaseMass - 1;
                 var weightForce = Mathf.Clamp(weightPercent, 0.0f, 0.5f);
-                if (weightFacter <= 0.49f && _shipMassSinkEnableConfig.Value)
+                if (weightFacter >= 1.5f && _shipMassSinkEnableConfig.Value)
                 {
                     weightForce = 2f;
                 }
