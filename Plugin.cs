@@ -24,7 +24,7 @@ public class WeightBasePlugin : BaseUnityPlugin
     }
 
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.0.4";
+    internal const string ModVersion = "1.0.5";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private static readonly string ConfigFileName = ModGUID + ".cfg";
@@ -72,6 +72,9 @@ public class WeightBasePlugin : BaseUnityPlugin
         _itemExcludeListConfig = config("2 - Items", "2.5 Exclude List", string.Empty,
             "Items to Exclude items from Stack/Weight Change.\nYou must add a comma at the end.\nExample: DragonEgg,CryptKey,Wishbone,");
         _itemExcludeListConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
+        _itemNoWeightListConfig = config("2 - Items", "2.6 No Weight List", "Coins,",
+            "Items to have the stack change but have no weight.\nYou must add a comma at the end.\nExample: DragonEgg,CryptKey,Wishbone,");
+        _itemNoWeightListConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
 
         _shipMassToWeightEnabledConfig = config("3 - Ship Weight", "3.1 Weight Matters", true,
             "Should weight in the cargo matter?");
@@ -209,6 +212,7 @@ public class WeightBasePlugin : BaseUnityPlugin
     internal static ConfigEntry<float> _itemWeightConfig = null!;
     internal static ConfigEntry<string> _itemIncludeListConfig = null!;
     internal static ConfigEntry<string> _itemExcludeListConfig = null!;
+    internal static ConfigEntry<string> _itemNoWeightListConfig = null!;
 
     internal static ConfigEntry<bool> _shipKarveCargoIncreaseEnabledConfig = null!;
     internal static ConfigEntry<int> _shipKarveCargoIncreaseColumnsConfig = null!;
