@@ -33,7 +33,7 @@ public class Ships
             __instance.GetComponentInChildren<Container>().m_inventory.m_totalWeight -= pLayerTotalWeight;
         }
     }
-    
+
     [HarmonyPatch(typeof(Ship), nameof(Ship.Awake))]
     private static class UpdateShipCargoSize
     {
@@ -41,46 +41,36 @@ public class Ships
         {
             var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
             if (!container) return;
-            
-            if (WeightBasePlugin._shipKarveCargoIncreaseEnabledConfig.Value)
-            {
-                if (__instance.name.ToLower().Contains("karve"))
-                {
-                    if (container != null)
-                    {
-                        container.m_width = Math.Min(WeightBasePlugin._shipKarveCargoIncreaseColumnsConfig.Value, 8);
-                        container.m_height = Math.Min(WeightBasePlugin._shipKarveCargoIncreaseRowsConfig.Value, 4);
-                    }
-                }
-            }
-
-            if (WeightBasePlugin._shipvikingCargoIncreaseEnabledConfig.Value)
-            {
-                if (__instance.name.ToLower().Contains("vikingship"))
-                {
-                    if (container != null)
-                    {
-                        container.m_width = Math.Min(WeightBasePlugin._shipvikingCargoIncreaseColumnsConfig.Value, 8);
-                        container.m_height = Math.Min(WeightBasePlugin._shipvikingCargoIncreaseRowsConfig.Value, 4);
-                    }
-                }
-            }
-
-
-            if (WeightBasePlugin._shipCustomCargoIncreaseEnabledConfig.Value)
-            {
-                if (container != null)
-                {
-                    container.m_width = Math.Min(WeightBasePlugin._shipCustomCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_height = Math.Min(WeightBasePlugin._shipCustomCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-            
             if (!container.m_nview) return;
             var shipID = container.m_nview.m_zdo.m_uid;
             if (!shipBaseMasses.ContainsKey(shipID))
             {
                 shipBaseMasses.Add(shipID, __instance.m_body.mass);
+            }
+
+            if (WeightBasePlugin.ShipKarveCargoIncreaseEnabledConfig.Value)
+            {
+                if (__instance.name.ToLower().Contains("karve"))
+                {
+                    container.m_width = Math.Min(WeightBasePlugin.ShipKarveCargoIncreaseColumnsConfig.Value, 8);
+                    container.m_height = Math.Min(WeightBasePlugin.ShipKarveCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+            if (WeightBasePlugin.ShipvikingCargoIncreaseEnabledConfig.Value)
+            {
+                if (__instance.name.ToLower().Contains("vikingship"))
+                {
+                    container.m_width = Math.Min(WeightBasePlugin.ShipvikingCargoIncreaseColumnsConfig.Value, 8);
+                    container.m_height = Math.Min(WeightBasePlugin.ShipvikingCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+
+            if (WeightBasePlugin.ShipCustomCargoIncreaseEnabledConfig.Value)
+            {
+                container.m_width = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseColumnsConfig.Value, 8);
+                container.m_height = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseRowsConfig.Value, 4);
             }
         }
     } 
@@ -90,7 +80,7 @@ public class Ships
         private static void Postfix(Ship __instance, Rigidbody ___m_body)
         {
             // TODO: Add drag to ship if overweight
-            if (!WeightBasePlugin._shipMassToWeightEnabledConfig.Value) return;
+            if (!WeightBasePlugin.ShipMassToWeightEnabledConfig.Value) return;
 
 
             if (!__instance.m_nview.IsValid()) return;
@@ -104,7 +94,7 @@ public class Ships
                 shipBaseMasses.Add(shipID, __instance.m_body.mass);
             }
 
-            var shipBaseMass = shipBaseMasses[shipID] * WeightBasePlugin._shipMassScaleConfig.Value;
+            var shipBaseMass = shipBaseMasses[shipID] * WeightBasePlugin.ShipMassScaleConfig.Value;
             var containerWeight = container.GetInventory().GetTotalWeight();
             var playersTotalWeight =
                 __instance.m_players.Sum(player => (float)Math.Round(player.m_inventory.m_totalWeight));
@@ -161,10 +151,10 @@ public class Ships
 
 
                 // Makes the ship look like its got some weight
-                if (!WeightBasePlugin._shipMassWeightLookEnableConfig.Value) return;
+                if (!WeightBasePlugin.ShipMassWeightLookEnableConfig.Value) return;
                 var weightPercent = (containerWeight + playersTotalWeight) / shipBaseMass - 1;
                 var weightForce = Mathf.Clamp(weightPercent, 0.0f, 0.5f);
-                if (weightFacter >= 1.5f && WeightBasePlugin._shipMassSinkEnableConfig.Value)
+                if (weightFacter >= 1.5f && WeightBasePlugin.ShipMassSinkEnableConfig.Value)
                 {
                     weightForce = 2f;
                 }

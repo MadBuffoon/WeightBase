@@ -16,7 +16,7 @@ public class UI
     {
         private static void Postfix(InventoryGrid __instance, Inventory ___m_inventory)
         {
-            if (WeightBasePlugin._itemUnlimitedStackEnabledConfig.Value)
+            if (WeightBasePlugin.ItemUnlimitedStackEnabledConfig.Value)
             {
                 var width = ___m_inventory.GetWidth();
 
@@ -40,7 +40,7 @@ public class UI
         private static void Postfix(HotkeyBar __instance, List<ItemDrop.ItemData> ___m_items,
             List<HotkeyBar.ElementData> ___m_elements)
         {
-            if (WeightBasePlugin._itemUnlimitedStackEnabledConfig.Value)
+            if (WeightBasePlugin.ItemUnlimitedStackEnabledConfig.Value)
             {
                 var player = Player.m_localPlayer;
                 if (player == null || player.IsDead() || __instance == null) return;
@@ -102,7 +102,7 @@ public class UI
             
             __instance.m_containerWeight.text = Helper.FormatNumberSimple(totalWeight).ToString();
 
-            if (!WeightBasePlugin._shipMassToWeightEnabledConfig.Value)
+            if (!WeightBasePlugin.ShipMassToWeightEnabledConfig.Value)
             {
                 return;
             }
@@ -117,7 +117,7 @@ public class UI
             var totalShipWeight = 0f;
             if (shipMass)
             {
-                var shipBaseMass = Ships.shipBaseMasses[shipID] * WeightBasePlugin._shipMassScaleConfig.Value;
+                var shipBaseMass = Ships.shipBaseMasses[shipID] * WeightBasePlugin.ShipMassScaleConfig.Value;
                 var currentShip = ___m_currentContainer.m_rootObjectOverride.gameObject.GetComponent<Ship>();
                 foreach (var playerShip in currentShip.m_players)
                 {
