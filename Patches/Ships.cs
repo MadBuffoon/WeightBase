@@ -95,10 +95,10 @@ public class Ships
             }
 
             float shipBaseMass = shipBaseMasses[shipID] * WeightBasePlugin.ShipMassScaleConfig.Value;
+            container.m_inventory.UpdateTotalWeight();
             float containerWeight = container.GetInventory().GetTotalWeight();
-            float playersTotalWeight =
-                __instance.m_players.Sum(player => (float)Math.Round(player.m_inventory.m_totalWeight));
-
+            float playersTotalWeight = __instance.m_players.Sum(player => (float)Math.Round(player.m_inventory.m_totalWeight));
+            container.m_inventory.m_totalWeight = containerWeight + playersTotalWeight;
 
             /*float weightFacter = Mathf.Round( (containerWeight + playersTotalWeight) / shipBaseMass);
             if (weightFacter < 1)
@@ -129,7 +129,7 @@ public class Ships
                         ForceMode.VelocityChange);
                 }*/
                 
-                if (__instance.m_speed == Ship.Speed.Half || __instance.m_speed == Ship.Speed.Full)
+                if (__instance.m_speed is Ship.Speed.Half or Ship.Speed.Full)
                 {
                     Vector3 worldCenterOfMass = __instance.m_body.worldCenterOfMass;
                     Vector3 force = (__instance.m_sailForce * -1.0f) * weightFacter;

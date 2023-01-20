@@ -2,14 +2,14 @@
 
 namespace WeightBase.Tools;
 
-public class Helper
+public static class Helper
 {
     internal static string FormatNumberSimple(float number)
     {
-        var mag = (int)(Math.Floor(Math.Log10(number)) / 3); // Truncates to 6, divides to 2
-        var divisor = Math.Pow(10, mag * 3);
+        int mag = (int)(Math.Floor(Math.Log10(number)) / 3); // Truncates to 6, divides to 2
+        double divisor = Math.Pow(10, mag * 3);
 
-        var shortNumber = number / divisor;
+        double shortNumber = number / divisor;
 
         string suffix;
         switch (mag)
@@ -27,6 +27,6 @@ public class Helper
                 break;
         }
 
-        return shortNumber.ToString("N1") + suffix;
+        return shortNumber.ToString("N2") + suffix;
     }
 }
