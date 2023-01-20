@@ -72,6 +72,7 @@ public class Items
 
         var includeList = WeightBasePlugin._itemIncludeListConfig.Value;
         var excludeList = WeightBasePlugin._itemExcludeListConfig.Value;
+        var noWeightList = WeightBasePlugin._itemNoWeightListConfig.Value;
         if (excludeList.Contains(itemName))
         {
             shared.m_maxStackSize = ogItemCaches[shared.m_name].ItemStackOG;
@@ -98,7 +99,10 @@ public class Items
                 : ogItemCaches[shared.m_name].ItemWeightOG;
            
         }
-
+        if (noWeightList.Contains(itemName))
+        {
+            shared.m_weight = 0f;
+        }
         
     }
 }
