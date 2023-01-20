@@ -16,7 +16,7 @@ public class Items
     {
         private static void Postfix(ObjectDB __instance)
         {
-            WeightBasePlugin.WeightBaseLogger.LogInfo("UpdateItemsLoad Awaked");
+            WeightBasePlugin.WeightBaseLogger.LogDebug("UpdateItemsLoad Awaked");
             UpdateItemDatabase(__instance);
         }
     }
@@ -45,7 +45,7 @@ public class Items
             return;
         }
 
-        WeightBasePlugin.WeightBaseLogger.LogInfo("UpdateItemDatabase Running");
+        WeightBasePlugin.WeightBaseLogger.LogDebug("UpdateItemDatabase Running");
         foreach (GameObject? gameObject in __instance.m_items)
         {
             ItemDrop? item = gameObject.GetComponent<ItemDrop>();
