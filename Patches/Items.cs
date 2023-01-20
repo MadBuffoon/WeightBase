@@ -56,7 +56,7 @@ public class Items
 
     internal static void UpdateItem(ItemDrop.ItemData item, string itemName)
     {
-        if (item == null || item.m_shared == null)
+        if (item?.m_shared == null)
         {
             return;
         }
