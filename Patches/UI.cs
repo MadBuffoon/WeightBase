@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Cache;
+using BepInEx.Bootstrap;
 using HarmonyLib;
 using UnityEngine;
 using WeightBase.Tools;
@@ -16,14 +16,14 @@ public static class UI
         private static void Postfix(InventoryGrid __instance, Inventory ___m_inventory)
         {
             if (!WeightBasePlugin.ItemUnlimitedStackEnabledConfig.Value) return;
-            int width = ___m_inventory.GetWidth();
+            var width = ___m_inventory.GetWidth();
 
-            foreach (ItemDrop.ItemData? allItem in ___m_inventory.GetAllItems())
+            foreach (var allItem in ___m_inventory.GetAllItems())
             {
                 if (allItem.m_shared.m_maxStackSize <= 1) continue;
-                InventoryGrid.Element? e = __instance.GetElement(allItem.m_gridPos.x, allItem.m_gridPos.y,
+                var e = __instance.GetElement(allItem.m_gridPos.x, allItem.m_gridPos.y,
                     width);
-                e.m_amount.text = Helper.FormatNumberSimple(allItem.m_stack);
+                e.m_amount.text = Helper.FormatNumberSimpleNoDecimal(allItem.m_stack);
             }
         }
     }
@@ -36,34 +36,38 @@ public static class UI
             List<HotkeyBar.ElementData> ___m_elements)
         {
             if (!WeightBasePlugin.ItemUnlimitedStackEnabledConfig.Value) return;
-            Player? player = Player.m_localPlayer;
+            var player = Player.m_localPlayer;
             if (player == null || player.IsDead() || __instance == null) return;
             if (__instance.m_elements == null) return;
-            foreach (ItemDrop.ItemData? itemData in ___m_items)
+            foreach (var itemData in ___m_items)
             {
                 if (itemData.m_shared.m_maxStackSize <= 1) continue;
-                int pos = itemData.m_gridPos.x;
-                if (pos < 0 || pos >= ___m_elements.Count) continue; // if statement to check the bounds of the array before accessing the element.
-                HotkeyBar.ElementData elementData2 = ___m_elements[pos];
-                elementData2.m_amount.text = Helper.FormatNumberSimple(itemData.m_stack);
+                //var pos = itemData.m_gridPos.x;
+                int pos =  Chainloader.PluginInfos.ContainsKey("odinplusqol.OdinsExtendedInventory") ? itemData.m_gridPos.x - 5
+                    : itemData.m_gridPos.x;
+                if (pos < 0 || pos >= ___m_elements.Count)
+                    continue; // if statement to check the bounds of the array before accessing the element.
+                var elementData2 =  ___m_elements[pos];
+                elementData2.m_amount.text = Helper.FormatNumberSimpleNoDecimal(itemData.m_stack);
             }
         }
     }
 
     [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.UpdateInventoryWeight))]
-    static class DisplayPLayerMaxWeight
+    private static class DisplayPLayerMaxWeight
     {
-        static void Postfix(InventoryGui __instance, Player player)
+        private static void Postfix(InventoryGui __instance, Player player)
         {
-            float currentWeight = (float)Math.Round(player.m_inventory.m_totalWeight * 100f) / 100f;
-            float maxCarryWeight = player.GetMaxCarryWeight();
+            var currentWeight = (float)Math.Round(player.m_inventory.m_totalWeight * 100f) / 100f;
+            var maxCarryWeight = player.GetMaxCarryWeight();
 
-            if (currentWeight > maxCarryWeight && (double)Mathf.Sin(Time.time * 10f) > 0.0)
-                __instance.m_weight.text = "<color=red>" + Helper.FormatNumberSimple(currentWeight) + "</color>\n<color=white>" +
-                                           Helper.FormatNumberSimple(maxCarryWeight) + "</color>";
+            if (currentWeight > maxCarryWeight && Mathf.Sin(Time.time * 10f) > 0.0)
+                __instance.m_weight.text = "<color=red>" + Helper.FormatNumberSimple(currentWeight) +
+                                           "</color>\n<color=white>" +
+                                           Helper.FormatNumberSimpleNoDecimal(maxCarryWeight) + "</color>";
             else
                 __instance.m_weight.text = "" + Helper.FormatNumberSimple(currentWeight) + "\n<color=white>" +
-                                           Helper.FormatNumberSimple(maxCarryWeight) + "</color>";
+                                           Helper.FormatNumberSimpleNoDecimal(maxCarryWeight) + "</color>";
         }
     }
 
@@ -75,11 +79,10 @@ public static class UI
         {
             //if (___m_currentContainer == null || !___m_currentContainer.transform.parent) return;
             if (___m_currentContainer == null) return;
-            //var totalWeight = Mathf.CeilToInt(___m_currentContainer.GetInventory().GetTotalWeight());
-            float totalWeight = ___m_currentContainer.m_inventory.GetTotalWeight();
+            float totalContainerWeight = ___m_currentContainer.m_inventory.GetTotalWeight();
 
 
-            __instance.m_containerWeight.text = Helper.FormatNumberSimple(totalWeight);
+            __instance.m_containerWeight.text = Helper.FormatNumberSimple(totalContainerWeight);
 
             if (!WeightBasePlugin.ShipMassToWeightEnabledConfig.Value)
             {
@@ -92,29 +95,27 @@ public static class UI
 
             ZDOID shipID = ___m_currentContainer.m_nview.m_zdo.m_uid;
             bool shipMass = Ships.shipBaseMasses.ContainsKey(shipID);
-            float weightFacter = 0f;
-            float totalShipWeight = 0f;
-            if (shipMass)
-            {
-                float shipBaseMass = Ships.shipBaseMasses[shipID] * WeightBasePlugin.ShipMassScaleConfig.Value;
-                Ship? currentShip = ___m_currentContainer.m_rootObjectOverride.gameObject.GetComponent<Ship>();
-                totalWeight += currentShip.m_players.Sum(playerShip => playerShip.m_inventory.GetTotalWeight());
+            if (!shipMass) return;
 
-                weightFacter = Mathf.Floor((totalWeight / shipBaseMass) * 100f);
-            }
+            float shipBaseMass = Ships.shipBaseMasses[shipID] * WeightBasePlugin.ShipMassScaleConfig.Value;
+            Ship currentShip = ___m_currentContainer.m_rootObjectOverride.gameObject.GetComponent<Ship>();
+            float totalPlayerWeight =
+                currentShip.m_players.Sum(player => (float)Math.Round(player.m_inventory.m_totalWeight));
+            float totalShipWeight = totalContainerWeight + totalPlayerWeight;
+            float weightFacter = (totalContainerWeight + totalPlayerWeight) / shipBaseMass * 100f;
 
 
             if (weightFacter > 100f && Mathf.Sin(Time.time * 10f) > 0.0)
             {
-                __instance.m_containerWeight.text = "" + Helper.FormatNumberSimple(totalWeight) +
-                                                    "\n<color=red>" + weightFacter +
+                __instance.m_containerWeight.text = "" + Helper.FormatNumberSimple(totalShipWeight) +
+                                                    "\n<color=red>" + Helper.FormatNumberSimpleNoDecimal(weightFacter) +
                                                     " %</color>";
             }
             else
             {
                 __instance.m_containerWeight.text =
-                    "" + Helper.FormatNumberSimple(totalWeight) + "\n<color=white>" +
-                    weightFacter + " %</color>";
+                    "" + Helper.FormatNumberSimple(totalShipWeight) + "\n<color=white>" +
+                    Helper.FormatNumberSimpleNoDecimal(weightFacter) + " %</color>";
             }
         }
     }
@@ -126,7 +127,7 @@ public static class UI
         {
             try
             {
-                float totalWeight = __instance.m_inventory.Sum(itemData => itemData.GetWeight());
+                var totalWeight = __instance.m_inventory.Sum(itemData => itemData.GetWeight());
             }
             catch (OverflowException)
             {

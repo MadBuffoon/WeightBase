@@ -80,17 +80,10 @@ public class Items
 
         if (includeList.Contains(itemName) || shared.m_maxStackSize > 1)
         {
+            // Stack
             shared.m_maxStackSize = WeightBasePlugin.ItemUnlimitedStackEnabledConfig.Value
                 ? 1000000
                 : OgItemCaches[shared.m_name].ItemStackOG;
-            /*if (itemUnlimitedStackEnabledConfig.Value)
-            {
-                shared.m_maxStackSize = Int32.MaxValue;
-            }
-            else
-            {
-                shared.m_maxStackSize = ogItemCaches[shared.m_name].ItemStackOG;
-            }*/
             // Weight
 
             shared.m_weight = WeightBasePlugin.ItemWeightEnabledConfig.Value
