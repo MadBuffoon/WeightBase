@@ -88,7 +88,7 @@
             <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.IMGUIModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.PhysicsModule">
-            <HintPath>F:\SteamLibrary\steamapps\common\Valheim\unstripped_corlib\UnityEngine.PhysicsModule.dll</HintPath>
+          <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.PhysicsModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>$(GamePath)\unstripped_corlib\UnityEngine.UI.dll</HintPath>
@@ -134,7 +134,8 @@
     -->
 
     <Target Name="Copy" AfterTargets="ILRepack">
-        <Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll&quot; &quot;C:\Users\MadBuffoon\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\MadClownWorld-Dev\BepInEx\plugins\$(AssemblyName).dll&quot;" />
+        <!--<Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll&quot; &quot;C:\Users\MadBuffoon\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\MadClownWorld-Dev\BepInEx\plugins\$(AssemblyName).dll&quot;" />-->
+        <Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll&quot; &quot;C:\Users\crypt\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\PTB\BepInEx\plugins\_TESTINGMODS\$(AssemblyName).dll&quot;" />
         <!--<Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll&quot; &quot;C:\Users\crypt\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\MagicalMountsFix\BepInEx\plugins$(AssemblyName).dll&quot;" />-->
     </Target>
 

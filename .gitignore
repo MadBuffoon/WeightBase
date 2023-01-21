@@ -1,4 +1,5 @@
 bin/
+bin/Debug/
 obj/
 /packages/
 riderModule.iml
@@ -6,3 +7,4 @@ riderModule.iml
 .idea/
 .vs/
 WeightBase.sln.DotSettings.user
+/bin/
