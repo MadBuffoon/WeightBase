@@ -56,6 +56,7 @@ Ship Weight Penalties<br/>
 
 | Version | Changes |
 |----|----|
+| 1.0.7 | - Fix the OdinsExtendedInventory support from breaking the hotbar<br/>
 | 1.0.6 | - Applied Azumatt's clean up of the code<br/> - Fixed Paddle Penalties not working<br/> - Added true support for OdinsExtendedInventory<br/>
 | 1.0.5 | - Added Exclude List Config this will make the items use the default Stack and weight.<br/> - Added No Weight List Config this will apply the stack change and make the item's weight 0<br/>
 | 1.0.4 | - Reworked how the items update when you change the config, it now will change live. You don't have reload anymore.<br/> - Added away to add items to a list to include them in the stack/weight change.<br/>

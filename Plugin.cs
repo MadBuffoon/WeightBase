@@ -18,7 +18,7 @@ namespace WeightBase;
 public class WeightBasePlugin : BaseUnityPlugin
 {
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.0.6";
+    internal const string ModVersion = "1.0.7";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private const string ConfigFileName = ModGUID + ".cfg";
