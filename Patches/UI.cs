@@ -42,14 +42,27 @@ public static class UI
             foreach (var itemData in ___m_items)
             {
                 if (itemData.m_shared.m_maxStackSize <= 1) continue;
-                //var pos = itemData.m_gridPos.x;
-                int pos =  Chainloader.PluginInfos.ContainsKey("odinplusqol.OdinsExtendedInventory") ? itemData.m_gridPos.x - 5
-                    : itemData.m_gridPos.x;
+                int pos = itemData.m_gridPos.x;
+                //int pos =  Chainloader.PluginInfos.ContainsKey("odinplusqol.OdinsExtendedInventory") ? itemData.m_gridPos.x - 5 : itemData.m_gridPos.x;
                 if (pos < 0 || pos >= ___m_elements.Count)
                     continue; // if statement to check the bounds of the array before accessing the element.
                 var elementData2 =  ___m_elements[pos];
                 elementData2.m_amount.text = Helper.FormatNumberSimpleNoDecimal(itemData.m_stack);
             }
+
+            if (Chainloader.PluginInfos.ContainsKey("odinplusqol.OdinsExtendedInventory"))
+            {
+                foreach (var itemData in ___m_items)
+                {
+                    if (itemData.m_shared.m_maxStackSize <= 1) continue;
+                    int pos = itemData.m_gridPos.x - 5;
+                    if (pos < 0 || pos >= ___m_elements.Count)
+                        continue; // if statement to check the bounds of the array before accessing the element.
+                    var elementData2 = ___m_elements[pos];
+                    elementData2.m_amount.text = Helper.FormatNumberSimpleNoDecimal(itemData.m_stack);
+                }
+            }
+            
         }
     }
 
