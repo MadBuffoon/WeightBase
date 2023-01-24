@@ -78,7 +78,7 @@ https://valheim.thunderstore.io/package/OdinPlus/OdinShip/
 
 | Version | Changes |
 |-------|-----------------------|
-| 1.0.8 | - Fix ships cargo hold size not taking<br/> - Add config support for OdinShips<br/>
+| 1.0.8 | - Did config rename so might need to redo configs.<br/> - Fix ships cargo hold size not taking<br/> - Add config support for OdinShips<br/>
 | 1.0.7 | - Fix the OdinsExtendedInventory support from breaking the hotbar<br/>
 | 1.0.6 | - Applied Azumatt's clean up of the code<br/> - Fixed Paddle Penalties not working<br/> - Added true support for OdinsExtendedInventory<br/>
 | 1.0.5 | - Added Exclude List Config this will make the items use the default Stack and weight.<br/> - Added No Weight List Config this will apply the stack change and make the item's weight 0<br/>
@@ -93,7 +93,7 @@ https://valheim.thunderstore.io/package/OdinPlus/OdinShip/
 
 ### Issues/Questions/Bugs
 
-`DISCORD:` <b>MadBuffoon#0001<b/>
+`DISCORD:` MadBuffoon#0001
 
 `STEAM:` https://steamcommunity.com/id/MadBuffoon/
 

@@ -71,6 +71,7 @@ public static class UI
     {
         private static void Postfix(InventoryGui __instance, Player player)
         {
+            if (!InventoryGui.IsVisible()) return;
             var currentWeight = (float)Math.Round(player.m_inventory.m_totalWeight * 100f) / 100f;
             var maxCarryWeight = player.GetMaxCarryWeight();
 
@@ -90,6 +91,7 @@ public static class UI
     {
         private static void Postfix(InventoryGui __instance, Container ___m_currentContainer)
         {
+            if (!InventoryGui.IsVisible()) return;
             //if (___m_currentContainer == null || !___m_currentContainer.transform.parent) return;
             if (___m_currentContainer == null) return;
             float totalContainerWeight = ___m_currentContainer.m_inventory.GetTotalWeight();
@@ -133,7 +135,7 @@ public static class UI
         }
     }
 
-    [HarmonyPatch(typeof(Inventory), nameof(Inventory.GetTotalWeight))]
+    /*[HarmonyPatch(typeof(Inventory), nameof(Inventory.GetTotalWeight))]
     private static class TotalWeightFix
     {
         private static bool Prefix(Inventory __instance)
@@ -150,5 +152,5 @@ public static class UI
 
             return true;
         }
-    }
+    }*/
 }

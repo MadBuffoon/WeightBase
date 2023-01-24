@@ -36,141 +36,15 @@ public class Ships
                __instance.GetComponentInChildren<Container>().m_inventory.m_totalWeight -= pLayerTotalWeight;
            }
        }*/
-
-    [HarmonyPatch(typeof(Ship), nameof(Ship.Start))]
-    //[HarmonyPriority(Priority.Last + 1)]
-    private static class UpdateShipCargoSize
-    {
-        private static void Postfix(Ship __instance)
-        {
-            
-            var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
-            if (!container) return;
-            if (!container.m_nview) return;
-            var shipID = container.m_nview.m_zdo.m_uid;
-            if (!shipBaseMasses.ContainsKey(shipID))
-            {
-                shipBaseMasses.Add(shipID, __instance.m_body.mass);
-            }
-            string name = Utils.GetPrefabName(__instance.gameObject);
-            
-            if (WeightBasePlugin.KarveCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "Karve")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.KarveCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.KarveCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-            if (WeightBasePlugin.vikingCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "VikingShip")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.vikingCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.vikingCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-            if (WeightBasePlugin.CargoShipCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "CargoShip")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.CargoShipCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.CargoShipCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-
-            if (WeightBasePlugin.SkuldelevCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "Skuldelev")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.SkuldelevCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.SkuldelevCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-            if (WeightBasePlugin.LittleBoatCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "LittleBoat")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.LittleBoatCargoIncreaseColumnsConfig.Value,
-                        8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.LittleBoatCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-            if (WeightBasePlugin.MercantShipCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "MercantShip")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.MercantShipCargoIncreaseColumnsConfig.Value,
-                        8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.MercantShipCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-            if (WeightBasePlugin.BigCargoShipCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "BigCargoShip")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.BigCargoShipCargoIncreaseColumnsConfig.Value,
-                        8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.BigCargoShipCargoIncreaseRowsConfig.Value,
-                        4);
-                }
-            }
-
-            if (WeightBasePlugin.FishingBoatCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "FishingBoat")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.FishingBoatCargoIncreaseColumnsConfig.Value,
-                        8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.FishingBoatCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-            if (WeightBasePlugin.FishingCanoeCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "FishingCanoe")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.FishingCanoeCargoIncreaseColumnsConfig.Value,
-                        8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.FishingCanoeCargoIncreaseRowsConfig.Value,
-                        4);
-                }
-            }
-
-            if (WeightBasePlugin.WarShipCargoIncreaseEnabledConfig.Value)
-            {
-                if (name == "WarShip")
-                {
-                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.WarShipCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.WarShipCargoIncreaseRowsConfig.Value, 4);
-                }
-            }
-
-
-            // Should Be last
-            if (WeightBasePlugin.ShipCustomCargoIncreaseEnabledConfig.Value)
-            {
-                container.m_inventory.m_width = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseColumnsConfig.Value, 8);
-                container.m_inventory.m_height = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseRowsConfig.Value, 4);
-            }
-
-        }
-    }
+    
 
     [HarmonyPatch(typeof(Ship), nameof(Ship.FixedUpdate))]
     private static class ApplyShipWeightForce
     {
         private static void Postfix(Ship __instance, Rigidbody ___m_body)
         {
-            // TODO: Add drag to ship if overweight
             if (!WeightBasePlugin.ShipMassToWeightEnabledConfig.Value) return;
-
+            if (!__instance.HasPlayerOnboard()) return;
 
             if (!__instance.m_nview.IsValid()) return;
 
