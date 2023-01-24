@@ -37,11 +37,13 @@ public class Ships
            }
        }*/
 
-    [HarmonyPatch(typeof(Ship), nameof(Ship.Awake))]
+    [HarmonyPatch(typeof(Ship), nameof(Ship.Start))]
+    //[HarmonyPriority(Priority.Last + 1)]
     private static class UpdateShipCargoSize
     {
         private static void Postfix(Ship __instance)
         {
+            
             var container = __instance.gameObject.transform.GetComponentInChildren<Container>();
             if (!container) return;
             if (!container.m_nview) return;
@@ -50,31 +52,114 @@ public class Ships
             {
                 shipBaseMasses.Add(shipID, __instance.m_body.mass);
             }
-
-            if (WeightBasePlugin.ShipKarveCargoIncreaseEnabledConfig.Value)
+            string name = Utils.GetPrefabName(__instance.gameObject);
+            
+            if (WeightBasePlugin.KarveCargoIncreaseEnabledConfig.Value)
             {
-                if (__instance.name.ToLower().Contains("karve"))
+                if (name == "Karve")
                 {
-                    container.m_width = Math.Min(WeightBasePlugin.ShipKarveCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_height = Math.Min(WeightBasePlugin.ShipKarveCargoIncreaseRowsConfig.Value, 4);
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.KarveCargoIncreaseColumnsConfig.Value, 8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.KarveCargoIncreaseRowsConfig.Value, 4);
                 }
             }
 
-            if (WeightBasePlugin.ShipvikingCargoIncreaseEnabledConfig.Value)
+            if (WeightBasePlugin.vikingCargoIncreaseEnabledConfig.Value)
             {
-                if (__instance.name.ToLower().Contains("vikingship"))
+                if (name == "VikingShip")
                 {
-                    container.m_width = Math.Min(WeightBasePlugin.ShipvikingCargoIncreaseColumnsConfig.Value, 8);
-                    container.m_height = Math.Min(WeightBasePlugin.ShipvikingCargoIncreaseRowsConfig.Value, 4);
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.vikingCargoIncreaseColumnsConfig.Value, 8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.vikingCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+            if (WeightBasePlugin.CargoShipCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "CargoShip")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.CargoShipCargoIncreaseColumnsConfig.Value, 8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.CargoShipCargoIncreaseRowsConfig.Value, 4);
                 }
             }
 
 
+            if (WeightBasePlugin.SkuldelevCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "Skuldelev")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.SkuldelevCargoIncreaseColumnsConfig.Value, 8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.SkuldelevCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+            if (WeightBasePlugin.LittleBoatCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "LittleBoat")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.LittleBoatCargoIncreaseColumnsConfig.Value,
+                        8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.LittleBoatCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+            if (WeightBasePlugin.MercantShipCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "MercantShip")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.MercantShipCargoIncreaseColumnsConfig.Value,
+                        8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.MercantShipCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+            if (WeightBasePlugin.BigCargoShipCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "BigCargoShip")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.BigCargoShipCargoIncreaseColumnsConfig.Value,
+                        8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.BigCargoShipCargoIncreaseRowsConfig.Value,
+                        4);
+                }
+            }
+
+            if (WeightBasePlugin.FishingBoatCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "FishingBoat")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.FishingBoatCargoIncreaseColumnsConfig.Value,
+                        8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.FishingBoatCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+            if (WeightBasePlugin.FishingCanoeCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "FishingCanoe")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.FishingCanoeCargoIncreaseColumnsConfig.Value,
+                        8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.FishingCanoeCargoIncreaseRowsConfig.Value,
+                        4);
+                }
+            }
+
+            if (WeightBasePlugin.WarShipCargoIncreaseEnabledConfig.Value)
+            {
+                if (name == "WarShip")
+                {
+                    container.m_inventory.m_width = Math.Min(WeightBasePlugin.WarShipCargoIncreaseColumnsConfig.Value, 8);
+                    container.m_inventory.m_height = Math.Min(WeightBasePlugin.WarShipCargoIncreaseRowsConfig.Value, 4);
+                }
+            }
+
+
+            // Should Be last
             if (WeightBasePlugin.ShipCustomCargoIncreaseEnabledConfig.Value)
             {
-                container.m_width = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseColumnsConfig.Value, 8);
-                container.m_height = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseRowsConfig.Value, 4);
+                container.m_inventory.m_width = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseColumnsConfig.Value, 8);
+                container.m_inventory.m_height = Math.Min(WeightBasePlugin.ShipCustomCargoIncreaseRowsConfig.Value, 4);
             }
+
         }
     }
 
@@ -117,7 +202,7 @@ public class Ships
                 if (weightFacter > 0.9f)
                 {
                     weightFacter = 1f;
-                    float rudderForce = __instance.m_rudderValue;
+                    var rudderForce = __instance.m_rudderValue;
                 }
 
                 var fixedDeltaTime = Time.fixedDeltaTime;
@@ -125,8 +210,8 @@ public class Ships
                 //Sail
                 if (__instance.m_speed is Ship.Speed.Half or Ship.Speed.Full)
                 {
-                    Vector3 worldCenterOfMass = __instance.m_body.worldCenterOfMass;
-                    Vector3 force = __instance.m_sailForce * -1.0f * weightFacter;
+                    var worldCenterOfMass = __instance.m_body.worldCenterOfMass;
+                    var force = __instance.m_sailForce * -1.0f * weightFacter;
                     ___m_body.AddForceAtPosition(force,
                         worldCenterOfMass + __instance.transform.up * __instance.m_sailForceOffset,
                         ForceMode.VelocityChange);
@@ -135,18 +220,21 @@ public class Ships
                 // Rudder
                 if (__instance.m_speed is Ship.Speed.Back or Ship.Speed.Slow)
                 {
-                    Transform transform = __instance.transform;
-                    Vector3 position = transform.position + transform.forward * __instance.m_stearForceOffset;
-                    Vector3 force = Vector3.zero;
+                    var transform = __instance.transform;
+                    var position = transform.position + transform.forward * __instance.m_stearForceOffset;
+                    var force = Vector3.zero;
                     switch (__instance.m_speed)
                     {
                         case Ship.Speed.Back:
-                            force += transform.forward * __instance.m_backwardForce * (1f - Mathf.Abs(__instance.m_rudderValue * weightFacter));
+                            force += transform.forward * __instance.m_backwardForce *
+                                     (1f - Mathf.Abs(__instance.m_rudderValue * weightFacter));
                             break;
                         case Ship.Speed.Slow:
-                            force += -transform.forward * __instance.m_backwardForce * (1f - Mathf.Abs(__instance.m_rudderValue * weightFacter));
+                            force += -transform.forward * __instance.m_backwardForce *
+                                     (1f - Mathf.Abs(__instance.m_rudderValue * weightFacter));
                             break;
                     }
+
                     ___m_body.AddForceAtPosition(force * fixedDeltaTime, position, ForceMode.VelocityChange);
                 }
 

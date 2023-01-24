@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -18,7 +19,7 @@ namespace WeightBase;
 public class WeightBasePlugin : BaseUnityPlugin
 {
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.0.7";
+    internal const string ModVersion = "1.0.8";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private const string ConfigFileName = ModGUID + ".cfg";
@@ -39,10 +40,10 @@ public class WeightBasePlugin : BaseUnityPlugin
         Off = 0
     }
 
-    public void Awake()
+    public void Start()
     {
         // 1 - General
-        ServerConfigLocked = config("1 - General", "1.1 Lock Configuration", Toggle.On,
+        ServerConfigLocked = config("01 - General", "1 Lock Configuration", Toggle.On,
             "If on, the configuration is locked and can be changed by server admins only.");
         _ = ConfigSync.AddLockingConfigEntry(ServerConfigLocked);
 
@@ -50,74 +51,183 @@ public class WeightBasePlugin : BaseUnityPlugin
             "This turns on console debug msgs.");
         _ = ConfigSync.AddConfigEntry(DebugLoggingConfig);*/
 
-        ItemUnlimitedStackEnabledConfig = config("2 - Items", "2.1 Remove Stack Limit", true,
+        ItemUnlimitedStackEnabledConfig = config("02 - Items", "1 Remove Stack Limit", true,
             "Should item stack size limit be removed? Will need to restart game/server!");
         ItemUnlimitedStackEnabledConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
-        ItemWeightEnabledConfig = config("2 - Items", "2.2 Weight Reduction", true,
+        ItemWeightEnabledConfig = config("02 - Items", "2 Weight Reduction", true,
             "Should item weight Reduction be enabled? Will need to restart game/server!");
         ItemWeightEnabledConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
-        ItemWeightConfig = config("2 - Items", "2.3 Item Weight", 1.0f,
+        ItemWeightConfig = config("02 - Items", "3 Item Weight", 1.0f,
             new ConfigDescription(
                 "How much an item weighs. 1 is normal weight and 2 being 2x the normal weight then 0.5 is half normal weight. ",
                 new AcceptableValueRange<float>(0f, 2f)));
         ItemWeightConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
 
-        ItemIncludeListConfig = config("2 - Items", "2.4 Include List", "DragonEgg,CryptKey,Wishbone,",
+        ItemIncludeListConfig = config("02 - Items", "4 Include List", "DragonEgg,CryptKey,Wishbone,",
             "Items to include that don't stack already.\nYou must add a comma at the end.\nExample: DragonEgg,CryptKey,Wishbone,");
         ItemIncludeListConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
-        ItemExcludeListConfig = config("2 - Items", "2.5 Exclude List", string.Empty,
+        ItemExcludeListConfig = config("02 - Items", "5 Exclude List", string.Empty,
             "Items to Exclude items from Stack/Weight Change.\nYou must add a comma at the end.\nExample: DragonEgg,CryptKey,Wishbone,");
         ItemExcludeListConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
-        ItemNoWeightListConfig = config("2 - Items", "2.6 No Weight List", "Coins,",
+        ItemNoWeightListConfig = config("02 - Items", "6 No Weight List", "Coins,",
             "Items to have the stack change but have no weight.\nYou must add a comma at the end.\nExample: DragonEgg,CryptKey,Wishbone,");
         ItemNoWeightListConfig.SettingChanged += (_, _) => _ItemUpdateChange_SettingChange();
 
-        ShipMassToWeightEnabledConfig = config("3 - Ship Weight", "3.1 Weight Matters", true,
+        ShipMassToWeightEnabledConfig = config("03 - Ship Weight", "1 Weight Matters", true,
             "Should weight in the cargo matter?");
-        ShipMassScaleConfig = config("3 - Ship Weight", "3.2 Weight Capacity Scale", 2f,
+        ShipMassScaleConfig = config("03 - Ship Weight", "2 Weight Capacity Scale", 2f,
             new ConfigDescription(
                 "This scales the total weight the ship can carry.",
                 new AcceptableValueRange<float>(1f, 20f)));
-        ShipMassWeightLookEnableConfig = config("3 - Ship Weight", "3.3 Got Weight?", false,
+        ShipMassWeightLookEnableConfig = config("03 - Ship Weight", "3 Got Weight?", false,
             "Should the ship show that it's over weight?");
-        ShipMassSinkEnableConfig = config("3 - Ship Weight", "3.4 Sinking", false,
+        ShipMassSinkEnableConfig = config("03 - Ship Weight", "4 Sinking", false,
             "Should weight in the cargo sink your ship?");
 
         // 3 - ShipKarveCargoIncrease
-        ShipKarveCargoIncreaseEnabledConfig = config("4 - Karve Ship", "3.1 Enabled", false,
+        KarveCargoIncreaseEnabledConfig = config("04 - Karve Ship", "1 Enabled", false,
             "Should Karve cargo hold size be increased?");
-        ShipKarveCargoIncreaseColumnsConfig = config("4 - Karve Ship",
-            "4.2 INV Width/Colums", 2,
+        KarveCargoIncreaseColumnsConfig = config("04 - Karve Ship",
+            "2 INV Width/Colums", 2,
             new ConfigDescription("Number of columns for the Karve cargo hold.\nDefault 2.",
                 new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
-        ShipKarveCargoIncreaseRowsConfig = config("4 - Karve Ship",
-            "4.3 INV Height/Rows", 2,
+        KarveCargoIncreaseRowsConfig = config("04 - Karve Ship",
+            "3 INV Height/Rows", 2,
             new ConfigDescription("Number of rows for the Karve cargo hold.\nDefault 2.",
                 new AcceptableValueList<int>(1, 2, 3, 4)));
 
         // 4 - Viking
-        ShipvikingCargoIncreaseEnabledConfig = config("5 - Long Ship", "5.1 Enabled", false,
+        vikingCargoIncreaseEnabledConfig = config("05 - Long Ship", "1 Enabled", false,
             "Should viking cargo hold size be increased?");
-        ShipvikingCargoIncreaseColumnsConfig = config("5 - Long Ship",
-            "5.2 INV Width/Colums", 6,
+        vikingCargoIncreaseColumnsConfig = config("05 - Long Ship",
+            "2 INV Width/Colums", 6,
             new ConfigDescription("Number of columns for the Long cargo hold.\nDefault 6.",
                 new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
-        ShipvikingCargoIncreaseRowsConfig = config("5 - Long Ship",
-            "5.3 INV Height/Rows", 3,
+        vikingCargoIncreaseRowsConfig = config("05 - Long Ship",
+            "3 INV Height/Rows", 3,
             new ConfigDescription("Number of rows for the viking cargo hold.\nDefault 3.",
                 new AcceptableValueList<int>(1, 2, 3, 4)));
 
-        // 5 - Custom Ships
-        ShipCustomCargoIncreaseEnabledConfig = config("6 - Custom Ship", "6.1 Enabled", false,
+        // 99 - Other Ships
+        string name99 = "99 - Other Ships";
+        ShipCustomCargoIncreaseEnabledConfig = config(name99, "1 Enabled", false,
             "Should Custom cargo hold size be increased?");
-        ShipCustomCargoIncreaseColumnsConfig = config("6 - Custom Ship",
-            "6.2 INV Width/Colums", 5,
+        ShipCustomCargoIncreaseColumnsConfig = config(name99,
+            "2 INV Width/Colums", 5,
             new ConfigDescription("Number of columns for the Custom cargo hold.",
                 new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
-        ShipCustomCargoIncreaseRowsConfig = config("6 - Custom Ship",
-            "6.3 INV Height/Rows", 3,
+        ShipCustomCargoIncreaseRowsConfig = config(name99,
+            "3 INV Height/Rows", 3,
             new ConfigDescription("Number of rows for the Custom cargo hold.",
                 new AcceptableValueList<int>(1, 2, 3, 4)));
+        
+        if (Chainloader.PluginInfos.ContainsKey("marlthon.OdinShip"))
+        {
+            //WeightBaseLogger.LogWarning("Loaded");
+            // CargoShip Ships
+            string name0 = "10 - CargoShip";
+            CargoShipCargoIncreaseEnabledConfig = config(name0, "1 Enabled", false,
+                "Should Custom cargo hold size be increased?");
+            CargoShipCargoIncreaseColumnsConfig = config(name0,
+                "2 INV Width/Colums", 8,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            CargoShipCargoIncreaseRowsConfig = config(name0,
+                "3 INV Height/Rows", 4,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+
+            // Skuldelev Ships
+            string Name1 = "11 - Skuldelev";
+            SkuldelevCargoIncreaseEnabledConfig = config(Name1, "1 Enabled", false,
+                "Should Custom cargo hold size be increased?");
+            SkuldelevCargoIncreaseColumnsConfig = config(Name1,
+                "2 INV Width/Colums", 7,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            SkuldelevCargoIncreaseRowsConfig = config(Name1,
+                "3 INV Height/Rows", 4,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+            
+            // LittleBoat Ships
+            string Name2 = "12 - LittleBoat";
+            LittleBoatCargoIncreaseEnabledConfig = config(Name2, "1 Enabled", false,
+                    "Should Custom cargo hold size be increased?");
+            LittleBoatCargoIncreaseColumnsConfig = config(Name2,
+                "2 INV Width/Colums", 2,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            LittleBoatCargoIncreaseRowsConfig = config(Name2,
+                "3 INV Height/Rows", 2,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+
+            // MercantShip Ships
+            string Name3 = "13 - MercantShip";
+            MercantShipCargoIncreaseEnabledConfig = config(Name3, "1 Enabled", false,
+                "Should Custom cargo hold size be increased?");
+            MercantShipCargoIncreaseColumnsConfig = config(Name3,
+                "2 INV Width/Colums", 6,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            MercantShipCargoIncreaseRowsConfig = config(Name3,
+                "3 INV Height/Rows", 3,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+
+            // BigCargoShip Ships
+            string Name4 = "14 - BigCargoShip";
+            BigCargoShipCargoIncreaseEnabledConfig = config(Name4, "1 Enabled", false,
+                "Should Custom cargo hold size be increased?");
+            BigCargoShipCargoIncreaseColumnsConfig = config(Name4,
+                "2 INV Width/Colums", 8,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            BigCargoShipCargoIncreaseRowsConfig = config(Name4,
+                "3 INV Height/Rows", 4,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+
+            // FishingBoat Ships
+            string Name5 = "15 - FishingBoat";
+            FishingBoatCargoIncreaseEnabledConfig = config(Name5, "1 Enabled", false,
+                "Should Custom cargo hold size be increased?");
+            FishingBoatCargoIncreaseColumnsConfig = config(Name5,
+                "2 INV Width/Colums", 2,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            FishingBoatCargoIncreaseRowsConfig = config(Name5,
+                "3 INV Height/Rows", 2,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+
+            // FishingCanoe Ships
+            string Name6 = "16 - FishingCanoe";
+            FishingCanoeCargoIncreaseEnabledConfig = config(Name6, "1 Enabled", false,
+                "Should Custom cargo hold size be increased?");
+            FishingCanoeCargoIncreaseColumnsConfig = config(Name6,
+                "2 INV Width/Colums", 2,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            FishingCanoeCargoIncreaseRowsConfig = config(Name6,
+                "3 INV Height/Rows", 1,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+
+            // WarShip Ships
+            string Name7 = "17 - WarShip";
+            WarShipCargoIncreaseEnabledConfig = config(Name7, "1 Enabled", false,
+                "Should Custom cargo hold size be increased?");
+            WarShipCargoIncreaseColumnsConfig = config(Name7,
+                "2 INV Width/Colums", 6,
+                new ConfigDescription("Number of columns for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4, 5, 6, 7, 8)));
+            WarShipCargoIncreaseRowsConfig = config(Name7,
+                "3 INV Height/Rows", 4,
+                new ConfigDescription("Number of rows for the Custom cargo hold.",
+                    new AcceptableValueList<int>(1, 2, 3, 4)));
+        }
         // End of Config Settings
 
 
@@ -208,23 +318,57 @@ public class WeightBasePlugin : BaseUnityPlugin
     internal static ConfigEntry<string> ItemIncludeListConfig = null!;
     internal static ConfigEntry<string> ItemExcludeListConfig = null!;
     internal static ConfigEntry<string> ItemNoWeightListConfig = null!;
+    
 
-    internal static ConfigEntry<bool> ShipKarveCargoIncreaseEnabledConfig = null!;
-    internal static ConfigEntry<int> ShipKarveCargoIncreaseColumnsConfig = null!;
-    internal static ConfigEntry<int> ShipKarveCargoIncreaseRowsConfig = null!;
-
-    internal static ConfigEntry<bool> ShipvikingCargoIncreaseEnabledConfig = null!;
-    internal static ConfigEntry<int> ShipvikingCargoIncreaseColumnsConfig = null!;
-    internal static ConfigEntry<int> ShipvikingCargoIncreaseRowsConfig = null!;
-
-    internal static ConfigEntry<bool> ShipCustomCargoIncreaseEnabledConfig = null!;
-    internal static ConfigEntry<int> ShipCustomCargoIncreaseColumnsConfig = null!;
-    internal static ConfigEntry<int> ShipCustomCargoIncreaseRowsConfig = null!;
-
-    internal static ConfigEntry<bool> ShipMassToWeightEnabledConfig = null!; // was containerWeightLimitEnabledConfig
+    internal static ConfigEntry<bool> ShipMassToWeightEnabledConfig = null!;
     internal static ConfigEntry<float> ShipMassScaleConfig = null!;
     internal static ConfigEntry<bool> ShipMassWeightLookEnableConfig = null!;
     internal static ConfigEntry<bool> ShipMassSinkEnableConfig = null!;
+
+    internal static ConfigEntry<bool> KarveCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> KarveCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> KarveCargoIncreaseRowsConfig = null!;
+
+    internal static ConfigEntry<bool> vikingCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> vikingCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> vikingCargoIncreaseRowsConfig = null!;
+    
+    internal static ConfigEntry<bool> ShipCustomCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> ShipCustomCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> ShipCustomCargoIncreaseRowsConfig = null!;
+    
+    
+    internal static ConfigEntry<bool> CargoShipCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> CargoShipCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> CargoShipCargoIncreaseRowsConfig = null!;
+        
+    internal static ConfigEntry<bool> SkuldelevCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> SkuldelevCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> SkuldelevCargoIncreaseRowsConfig = null!;
+        
+    internal static ConfigEntry<bool> LittleBoatCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> LittleBoatCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> LittleBoatCargoIncreaseRowsConfig = null!;
+        
+    internal static ConfigEntry<bool> MercantShipCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> MercantShipCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> MercantShipCargoIncreaseRowsConfig = null!;
+        
+    internal static ConfigEntry<bool> BigCargoShipCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> BigCargoShipCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> BigCargoShipCargoIncreaseRowsConfig = null!;
+        
+    internal static ConfigEntry<bool> FishingBoatCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> FishingBoatCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> FishingBoatCargoIncreaseRowsConfig = null!;
+        
+    internal static ConfigEntry<bool> FishingCanoeCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> FishingCanoeCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> FishingCanoeCargoIncreaseRowsConfig = null!;
+        
+    internal static ConfigEntry<bool> WarShipCargoIncreaseEnabledConfig = null!;
+    internal static ConfigEntry<int> WarShipCargoIncreaseColumnsConfig = null!;
+    internal static ConfigEntry<int> WarShipCargoIncreaseRowsConfig = null!;
 
 
 
