@@ -76,12 +76,9 @@ public static class UI
             var maxCarryWeight = player.GetMaxCarryWeight();
 
             if (currentWeight > maxCarryWeight && Mathf.Sin(Time.time * 10f) > 0.0)
-                __instance.m_weight.text = "<color=red>" + Helper.FormatNumberSimple(currentWeight) +
-                                           "</color>\n<color=white>" +
-                                           Helper.FormatNumberSimpleNoDecimal(maxCarryWeight) + "</color>";
+                __instance.m_weight.text = $"<color=red>{Helper.FormatNumberSimple(currentWeight)}</color>\n<color=white>{Helper.FormatNumberSimpleNoDecimal(maxCarryWeight)}</color>";
             else
-                __instance.m_weight.text = "" + Helper.FormatNumberSimple(currentWeight) + "\n<color=white>" +
-                                           Helper.FormatNumberSimpleNoDecimal(maxCarryWeight) + "</color>";
+                __instance.m_weight.text = $"{Helper.FormatNumberSimple(currentWeight)}\n<color=white>{Helper.FormatNumberSimpleNoDecimal(maxCarryWeight)}</color>";
         }
     }
 
@@ -122,15 +119,11 @@ public static class UI
 
             if (weightFacter > 100f && Mathf.Sin(Time.time * 10f) > 0.0)
             {
-                __instance.m_containerWeight.text = "" + Helper.FormatNumberSimple(totalShipWeight) +
-                                                    "\n<color=red>" + Helper.FormatNumberSimpleNoDecimal(weightFacter) +
-                                                    " %</color>";
+                __instance.m_containerWeight.text = $"{Helper.FormatNumberSimple(totalShipWeight)}\n<color=red>{Helper.FormatNumberSimpleNoDecimal(weightFacter)} %</color>";
             }
             else
             {
-                __instance.m_containerWeight.text =
-                    "" + Helper.FormatNumberSimple(totalShipWeight) + "\n<color=white>" +
-                    Helper.FormatNumberSimpleNoDecimal(weightFacter) + " %</color>";
+                __instance.m_containerWeight.text = $"{Helper.FormatNumberSimple(totalShipWeight)}\n<color=white>{Helper.FormatNumberSimpleNoDecimal(weightFacter)} %</color>";
             }
         }
     }

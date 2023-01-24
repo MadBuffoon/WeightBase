@@ -19,7 +19,7 @@ namespace WeightBase;
 public class WeightBasePlugin : BaseUnityPlugin
 {
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.0.8";
+    internal const string ModVersion = "1.0.9";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private const string ConfigFileName = ModGUID + ".cfg";
@@ -79,9 +79,9 @@ public class WeightBasePlugin : BaseUnityPlugin
             new ConfigDescription(
                 "This scales the total weight the ship can carry.",
                 new AcceptableValueRange<float>(1f, 20f)));
-        ShipMassWeightLookEnableConfig = config("03 - Ship Weight", "3 Got Weight?", false,
+        ShipMassWeightLookEnableConfig = config("3 - Ship Weight", "3 Got Weight?", false,
             "Should the ship show that it's over weight?");
-        ShipMassSinkEnableConfig = config("03 - Ship Weight", "4 Sinking", false,
+        ShipMassSinkEnableConfig = config("3 - Ship Weight", "4 Sinking", false,
             "Should weight in the cargo sink your ship?");
         // End of Config Settings
 
