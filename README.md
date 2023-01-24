@@ -16,10 +16,32 @@ https://github.com/remmizekim/ValheimMods/<br/>
 
 <details>
 <summary><b> 
+ Compatible Mods
+</b></summary>
+
+- OdinsExtendedInventory<br/>
+https://valheim.thunderstore.io/package/OdinPlus/OdinsExtendedInventory/
+- OdinShip<br/>
+https://valheim.thunderstore.io/package/OdinPlus/OdinShip/
+
+</details> 
+
+<details>
+<summary><b> 
+ InCompatible Mods
+</b></summary>
+
+- Other Stack Mods<br/>
+
+</details> 
+
+---
+
+<details>
+<summary><b> 
  Ship Weight Penalties 
 </b></summary>
 
-Ship Weight Penalties<br/>
 - What is the penalties?<br/>
   If the ship's total weight goes over 100% the ship will slow down.<br/>
   At 150% the ship will just stop.<br/>
@@ -55,7 +77,8 @@ Ship Weight Penalties<br/>
 ## Newest to Oldest
 
 | Version | Changes |
-|----|----|
+|-------|-----------------------|
+| 1.0.8 | - Fix ships cargo hold size not taking<br/> - Add config support for OdinShips<br/>
 | 1.0.7 | - Fix the OdinsExtendedInventory support from breaking the hotbar<br/>
 | 1.0.6 | - Applied Azumatt's clean up of the code<br/> - Fixed Paddle Penalties not working<br/> - Added true support for OdinsExtendedInventory<br/>
 | 1.0.5 | - Added Exclude List Config this will make the items use the default Stack and weight.<br/> - Added No Weight List Config this will apply the stack change and make the item's weight 0<br/>
