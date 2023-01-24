@@ -93,7 +93,7 @@ https://valheim.thunderstore.io/package/OdinPlus/OdinShip/
 
 ### Issues/Questions/Bugs
 
-`DISCORD:` MadBuffoon#0001
+`DISCORD:` <b>MadBuffoon#0001<b/>
 
 `STEAM:` https://steamcommunity.com/id/MadBuffoon/
 
