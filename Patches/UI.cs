@@ -50,7 +50,7 @@ public static class UI
                 elementData2.m_amount.text = Helper.FormatNumberSimpleNoDecimal(itemData.m_stack);
             }
 
-            if (Chainloader.PluginInfos.ContainsKey("odinplusqol.OdinsExtendedInventory"))
+            if (Chainloader.PluginInfos.ContainsKey("odinplusqol.OdinsExtendedInventory") || Chainloader.PluginInfos.ContainsKey("Azumatt.AzuExtendedPlayerInventory"))
             {
                 foreach (var itemData in ___m_items)
                 {
@@ -69,9 +69,10 @@ public static class UI
     [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.UpdateInventoryWeight))]
     private static class DisplayPLayerMaxWeight
     {
-        private static void Postfix(InventoryGui __instance, Player player)
+        private static bool Prefix(InventoryGui __instance, Player player)
         {
-            if (!InventoryGui.IsVisible()) return;
+            if (InventoryGui.IsVisible() == null) return true;
+            if (!InventoryGui.IsVisible()) return true;
             var currentWeight = (float)Math.Round(player.m_inventory.m_totalWeight * 100f) / 100f;
             var maxCarryWeight = player.GetMaxCarryWeight();
 
@@ -79,6 +80,7 @@ public static class UI
                 __instance.m_weight.text = $"<color=red>{Helper.FormatNumberSimple(currentWeight)}</color>\n<color=white>{Helper.FormatNumberSimpleNoDecimal(maxCarryWeight)}</color>";
             else
                 __instance.m_weight.text = $"{Helper.FormatNumberSimple(currentWeight)}\n<color=white>{Helper.FormatNumberSimpleNoDecimal(maxCarryWeight)}</color>";
+            return false;
         }
     }
 
@@ -88,6 +90,7 @@ public static class UI
     {
         private static void Postfix(InventoryGui __instance, Container ___m_currentContainer)
         {
+            if (InventoryGui.IsVisible() == null) return;
             if (!InventoryGui.IsVisible()) return;
             //if (___m_currentContainer == null || !___m_currentContainer.transform.parent) return;
             if (___m_currentContainer == null) return;

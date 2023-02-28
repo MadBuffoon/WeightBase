@@ -19,8 +19,8 @@ https://github.com/remmizekim/ValheimMods/<br/>
  Compatible Mods
 </b></summary>
 
-- OdinsExtendedInventory<br/>
-https://valheim.thunderstore.io/package/OdinPlus/OdinsExtendedInventory/
+- AzuExtendedPlayerInventory<br/>
+https://valheim.thunderstore.io/package/Azumatt/AzuExtendedPlayerInventory/
 - OdinShip<br/>
 https://valheim.thunderstore.io/package/OdinPlus/OdinShip/
 
@@ -78,6 +78,7 @@ https://valheim.thunderstore.io/package/OdinPlus/OdinShip/
 
 | Version | Changes |
 |-------|-----------------------|
+| 1.1.0 | - Added support for AzuExtendedPlayerInventory<br/>
 | 1.0.9 | - Removed ships cargo hold size configs, I would recommend to get https://valheim.thunderstore.io/package/Azumatt/AzuContainerSizes/<br/> - Made some fps improvements.<br/>
 | 1.0.8 | - Did config rename so might need to redo configs.<br/> - Fix ships cargo hold size not taking<br/> - Add config support for OdinShips<br/>
 | 1.0.7 | - Fix the OdinsExtendedInventory support from breaking the hotbar<br/>
