@@ -6,20 +6,18 @@ namespace WeightBase.Tools
 {
     public static class Helper
     {
+        private static string[] suffixes = {"", "k", "m", "b"};
+
         internal static string FormatNumberSimple(float number)
         {
-            double shortNumber;
-            string suffix;
-            CalculateShortNumberAndSuffix(number, out shortNumber, out suffix);
-            return shortNumber.ToString("N2") + suffix;
+            CalculateShortNumberAndSuffix(number, out double shortNumber, out string suffix);
+            return $"{shortNumber:N2}{suffix}";
         }
 
         internal static string FormatNumberSimpleNoDecimal(float number)
         {
-            double shortNumber;
-            string suffix;
-            CalculateShortNumberAndSuffix(number, out shortNumber, out suffix);
-            return shortNumber.ToString("N0") + suffix;
+            CalculateShortNumberAndSuffix(number, out double shortNumber, out string suffix);
+            return $"{shortNumber:N0}{suffix}";
         }
 
         private static void CalculateShortNumberAndSuffix(float number, out double shortNumber, out string suffix)
@@ -28,20 +26,7 @@ namespace WeightBase.Tools
             double divisor = Math.Pow(10, mag * 3);
 
             shortNumber = number / divisor;
-            suffix = ""; // Initially set the suffix to an empty string
-
-            switch (mag)
-            {
-                case 1:
-                    suffix = "k";
-                    break;
-                case 2:
-                    suffix = "m";
-                    break;
-                case 3:
-                    suffix = "b";
-                    break;
-            }
+            suffix = suffixes[mag];
         }
 
         public static void ApplyWeightFactor(Ship __instance, Rigidbody ___m_body, float weightFacter, float containerWeight, float playersTotalWeight, float shipBaseMass)
