@@ -87,19 +87,19 @@ public class WeightBasePlugin : BaseUnityPlugin
     {
         if (!ObjectDB.instance) return;
         WeightBaseLogger.LogInfo("_ItemUpdateChange_SettingChange Joined");
-        Util.UpdateItemDatabase(ObjectDB.instance);
+        Helper.UpdateItemDatabase(ObjectDB.instance);
         var itemDrops = Resources.FindObjectsOfTypeAll<ItemDrop>();
         foreach (var item in itemDrops)
         {
             var nameOfItem = Utils.GetPrefabName(item.gameObject) + ",";
-            Util.UpdateItem(item.m_itemData, nameOfItem);
+            Helper.UpdateItem(item.m_itemData, nameOfItem);
         }
 
         if (!Player.m_localPlayer) return;
         foreach (var i in Player.m_localPlayer.m_inventory.m_inventory)
         {
             var nameOfItem = Utils.GetPrefabName(i.m_dropPrefab) + ",";
-            Util.UpdateItem(i, nameOfItem);
+            Helper.UpdateItem(i, nameOfItem);
         }
 
         Player.m_localPlayer.m_inventory.UpdateTotalWeight();
@@ -110,7 +110,7 @@ public class WeightBasePlugin : BaseUnityPlugin
         foreach (var i in InventoryGui.instance.m_currentContainer.m_inventory.m_inventory)
         {
             var nameOfItem = Utils.GetPrefabName(i.m_dropPrefab) + ",";
-            Util.UpdateItem(i, nameOfItem);
+            Helper.UpdateItem(i, nameOfItem);
         }
 
         InventoryGui.instance.m_currentContainer.m_inventory.UpdateTotalWeight();

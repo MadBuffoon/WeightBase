@@ -16,7 +16,7 @@ namespace WeightBase.Patches
             private static void Postfix(ObjectDB __instance)
             {
                 WeightBasePlugin.WeightBaseLogger.LogDebug("UpdateItemsLoad Awaked");
-                Util.UpdateItemDatabase(__instance);
+                Helper.UpdateItemDatabase(__instance);
             }
         }
 
@@ -25,9 +25,9 @@ namespace WeightBase.Patches
         {
             private static void Postfix(Container __instance)
             {
-                Util.UpdateContainerItems(__instance);
+                Helper.UpdateContainerItems(__instance);
                 __instance.m_inventory.UpdateTotalWeight();
-                Util.UpdateContainerWeightInGui();
+                Helper.UpdateContainerWeightInGui();
             }
         }
     }

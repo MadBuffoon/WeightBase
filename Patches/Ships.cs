@@ -3,40 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
+using WeightBase.Tools;
 
 namespace WeightBase.Patches;
 
 public class Ships
 {
     internal static readonly Dictionary<ZDOID, float> shipBaseMasses = new();
-    /*
-       [HarmonyPatch(typeof(Ship), nameof(Ship.OnTriggerEnter))]
-       private static class ShipWeightAdd
-       {
-           private static void Postfix(Ship __instance, Collider collider)
-           {
-   
-               Player component = collider.GetComponent<Player>();
-               if (!(bool) (UnityEngine.Object) component) return;
-               var pLayerTotalWeight=Player.m_localPlayer.m_inventory.GetTotalWeight();
-               __instance.GetComponentInChildren<Container>().m_inventory.m_totalWeight += pLayerTotalWeight;
-   
-               
-           }
-       }
-      
-       [HarmonyPatch(typeof(Ship), nameof(Ship.OnTriggerExit))]
-       private static class ShipWeightRemove
-       {
-           private static void Postfix(Ship __instance, Collider collider)
-           {
-               Player component = collider.GetComponent<Player>();
-               if (!(bool) (UnityEngine.Object) component) return;
-               float pLayerTotalWeight=Player.m_localPlayer.m_inventory.GetTotalWeight();
-               __instance.GetComponentInChildren<Container>().m_inventory.m_totalWeight -= pLayerTotalWeight;
-           }
-       }*/
-
 
     [HarmonyPatch(typeof(Ship), nameof(Ship.CustomFixedUpdate))]
     private static class ApplyShipWeightForce
@@ -66,7 +39,7 @@ public class Ships
 
             if (weightFacter > 0f)
             {
-                Util.ApplyWeightFactor(__instance, ___m_body, weightFacter, containerWeight, playersTotalWeight, shipBaseMass);
+                Helper.ApplyWeightFactor(__instance, ___m_body, weightFacter, containerWeight, playersTotalWeight, shipBaseMass);
             }
         }
     }
