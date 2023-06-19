@@ -1,15 +1,16 @@
-﻿namespace WeightBase.Tools;
-
-public class ItemCache
+﻿namespace WeightBase.Tools
 {
-    public string ItemName;
-    public int ItemStackOG;
-    public float ItemWeightOG;
-
-    public ItemCache(string _itemName, int _itemStack, float _itemWeight)
+    public class ItemCache
     {
-        ItemName = _itemName;
-        ItemStackOG = _itemStack;
-        ItemWeightOG = _itemWeight;
+        public readonly string ItemName;
+        public readonly int ItemStackOG;
+        public readonly float ItemWeightOG;
+
+        public ItemCache(string itemName, int itemStack, float itemWeight)
+        {
+            ItemName = itemName;
+            ItemStackOG = itemStack;
+            ItemWeightOG = itemWeight;
+        }
     }
 }

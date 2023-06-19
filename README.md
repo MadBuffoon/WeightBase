@@ -1,4 +1,4 @@
-﻿# Summary
+# Summary
 Removes stack size and allows you to change the Weight.<br/>
 Also lets you change the inventory size of the ships.<br/>
 Also Change how you see large stack size and weight numbers to a smiple look like 1.0k applies to all Inventories

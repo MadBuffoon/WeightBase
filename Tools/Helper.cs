@@ -1,57 +1,45 @@
 ﻿using System;
 
-namespace WeightBase.Tools;
-
-public static class Helper
+namespace WeightBase.Tools
 {
-    internal static string FormatNumberSimple(float number)
+    public static class Helper
     {
-        int mag = (int)(Math.Log10(number) / 3); // Truncates to 6, divides to 2
-        double divisor = Math.Pow(10, mag * 3);
-
-        double shortNumber = number / divisor;
-
-        string suffix;
-        switch (mag)
+        internal static string FormatNumberSimple(float number)
         {
-            default:
-                return number.ToString("N2");
-            case 1:
-                suffix = "k";
-                break;
-            case 2:
-                suffix = "m";
-                break;
-            case 3:
-                suffix = "b";
-                break;
+            double shortNumber;
+            string suffix;
+            CalculateShortNumberAndSuffix(number, out shortNumber, out suffix);
+            return shortNumber.ToString("N2") + suffix;
         }
 
-        return shortNumber.ToString("N2") + suffix;
-    }
-    internal static string FormatNumberSimpleNoDecimal(float number)
-    {
-        int mag = (int)(Math.Log10(number) / 3); // Truncates to 6, divides to 2
-        double divisor = Math.Pow(10f, mag * 3f);
-
-        double shortNumber = number / divisor;
-
-        string suffix;
-        switch (mag)
+        internal static string FormatNumberSimpleNoDecimal(float number)
         {
-            default:
-                return number.ToString("N0");
-            case 1:
-                suffix = "k";
-                break;
-            case 2:
-                suffix = "m";
-                break;
-            case 3:
-                suffix = "b";
-                break;
+            double shortNumber;
+            string suffix;
+            CalculateShortNumberAndSuffix(number, out shortNumber, out suffix);
+            return shortNumber.ToString("N0") + suffix;
         }
 
-        return shortNumber.ToString("N2") + suffix;
+        private static void CalculateShortNumberAndSuffix(float number, out double shortNumber, out string suffix)
+        {
+            int mag = (int)(Math.Log10(number) / 3);
+            double divisor = Math.Pow(10, mag * 3);
+
+            shortNumber = number / divisor;
+            suffix = "";  // Initially set the suffix to an empty string
+
+            switch (mag)
+            {
+                case 1:
+                    suffix = "k";
+                    break;
+                case 2:
+                    suffix = "m";
+                    break;
+                case 3:
+                    suffix = "b";
+                    break;
+            }
+        }
     }
 }
