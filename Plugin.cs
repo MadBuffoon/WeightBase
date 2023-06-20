@@ -20,7 +20,7 @@ namespace WeightBase;
 public class WeightBasePlugin : BaseUnityPlugin
 {
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.1.0";
+    internal const string ModVersion = "1.1.1";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private const string ConfigFileName = ModGUID + ".cfg";
@@ -187,7 +187,7 @@ public class WeightBasePlugin : BaseUnityPlugin
 
     private class ConfigurationManagerAttributes
     {
-        [UsedImplicitly] public int? Order;
+        [UsedImplicitly] public int Order;
         [UsedImplicitly] public bool? Browsable;
         [UsedImplicitly] public string? Category;
         [UsedImplicitly] public Action<ConfigEntryBase>? CustomDrawer;
@@ -211,7 +211,7 @@ public class WeightBasePlugin : BaseUnityPlugin
 
         public override string ToDescriptionString()
         {
-            return "# Acceptable values: " + string.Join(", ", KeyboardShortcut.AllKeyCodes);
+            return "# Acceptable values: " + string.Join(", ", UnityInput.Current.SupportedKeyCodes);
         }
     }
 
