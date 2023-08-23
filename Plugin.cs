@@ -20,7 +20,7 @@ namespace WeightBase;
 public class WeightBasePlugin : BaseUnityPlugin
 {
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.1.1";
+    internal const string ModVersion = "1.1.2";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private const string ConfigFileName = ModGUID + ".cfg";
@@ -28,8 +28,7 @@ public class WeightBasePlugin : BaseUnityPlugin
 
     internal static string ConnectionError = "";
 
-    public static readonly ManualLogSource WeightBaseLogger =
-        BepInEx.Logging.Logger.CreateLogSource(ModName);
+    public static readonly ManualLogSource WeightBaseLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
 
     private static readonly ConfigSync ConfigSync = new(ModGUID)
         { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
@@ -187,10 +186,10 @@ public class WeightBasePlugin : BaseUnityPlugin
 
     private class ConfigurationManagerAttributes
     {
-        [UsedImplicitly] public int Order;
-        [UsedImplicitly] public bool? Browsable;
-        [UsedImplicitly] public string? Category;
-        [UsedImplicitly] public Action<ConfigEntryBase>? CustomDrawer;
+        [UsedImplicitly] public int? Order = null!;
+        [UsedImplicitly] public bool? Browsable = null!;
+        [UsedImplicitly] public string? Category = null!;
+        [UsedImplicitly] public Action<ConfigEntryBase>? CustomDrawer = null!;
     }
 
     private class AcceptableShortcuts : AcceptableValueBase

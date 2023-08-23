@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using HarmonyLib;
 
 namespace WeightBase;
@@ -18,6 +22,7 @@ public static class RegisterAndCheckVersion
         WeightBasePlugin.WeightBaseLogger.LogInfo("Invoking version check");
         ZPackage zpackage = new();
         zpackage.Write(WeightBasePlugin.ModVersion);
+        zpackage.Write(RpcHandlers.ComputeHashForMod().Replace("-", ""));
         peer.m_rpc.Invoke($"{WeightBasePlugin.ModName}_VersionCheck", zpackage);
     }
 }
@@ -29,15 +34,14 @@ public static class VerifyClient
     {
         if (!__instance.IsServer() || RpcHandlers.ValidatedPeers.Contains(rpc)) return true;
         // Disconnect peer if they didn't send mod version at all
-        WeightBasePlugin.WeightBaseLogger.LogWarning(
-            $"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
+        WeightBasePlugin.WeightBaseLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
         rpc.Invoke("Error", 3);
         return false; // Prevent calling underlying method
     }
 
     private static void Postfix(ZNet __instance)
     {
-        ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestAdminSync",
+        ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), $"{WeightBasePlugin.ModName}RequestAdminSync",
             new ZPackage());
     }
 }
@@ -76,17 +80,18 @@ public static class RpcHandlers
     public static void RPC_WeightBase_Version(ZRpc rpc, ZPackage pkg)
     {
         var version = pkg.ReadString();
+        string? hash = pkg.ReadString();
+
+        var hashForAssembly = ComputeHashForMod().Replace("-", "");
         WeightBasePlugin.WeightBaseLogger.LogInfo("Version check, local: " +
                                                   WeightBasePlugin.ModVersion +
                                                   ",  remote: " + version);
-        if (version != WeightBasePlugin.ModVersion)
+        if (hash != hashForAssembly || version != WeightBasePlugin.ModVersion)
         {
-            WeightBasePlugin.ConnectionError =
-                $"{WeightBasePlugin.ModName} Installed: {WeightBasePlugin.ModVersion}\n Needed: {version}";
+            WeightBasePlugin.ConnectionError = $"{WeightBasePlugin.ModName} Installed: {WeightBasePlugin.ModVersion} {hashForAssembly}\n Needed: {version} {hash}";
             if (!ZNet.instance.IsServer()) return;
             // Different versions - force disconnect client from server
-            WeightBasePlugin.WeightBaseLogger.LogWarning(
-                $"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting");
+            WeightBasePlugin.WeightBaseLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...");
             rpc.Invoke("Error", 3);
         }
         else
@@ -105,5 +110,20 @@ public static class RpcHandlers
                 ValidatedPeers.Add(rpc);
             }
         }
+    }
+
+    public static string ComputeHashForMod()
+    {
+        using SHA256 sha256Hash = SHA256.Create();
+        // ComputeHash - returns byte array  
+        byte[] bytes = sha256Hash.ComputeHash(File.ReadAllBytes(Assembly.GetExecutingAssembly().Location));
+        // Convert byte array to a string   
+        StringBuilder builder = new();
+        foreach (byte b in bytes)
+        {
+            builder.Append(b.ToString("X2"));
+        }
+
+        return builder.ToString();
     }
 }
