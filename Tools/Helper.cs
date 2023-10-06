@@ -22,7 +22,7 @@ namespace WeightBase.Tools
 
         private static void CalculateShortNumberAndSuffix(float number, out double shortNumber, out string suffix)
         {
-            int mag = (int)(Math.Log10(number) / 3);
+            int mag = Math.Max(0, (int)(Math.Log10(Math.Abs(number) + 0.001) / 3));
             mag = Math.Min(suffixes.Length - 1, mag);
             double divisor = Math.Pow(10, mag * 3);
 
