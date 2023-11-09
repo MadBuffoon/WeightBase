@@ -15,7 +15,6 @@ namespace WeightBase.Patches
         {
             private static void Postfix(ObjectDB __instance)
             {
-                WeightBasePlugin.WeightBaseLogger.LogDebug("UpdateItemsLoad Awaked");
                 Helper.UpdateItemDatabase(__instance);
             }
         }

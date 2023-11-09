@@ -20,7 +20,7 @@ namespace WeightBase;
 public class WeightBasePlugin : BaseUnityPlugin
 {
     internal const string ModName = "WeightBase";
-    internal const string ModVersion = "1.1.4";
+    internal const string ModVersion = "1.1.5";
     internal const string Author = "MadBuffoon";
     private const string ModGUID = Author + "." + ModName;
     private const string ConfigFileName = ModGUID + ".cfg";
@@ -85,7 +85,7 @@ public class WeightBasePlugin : BaseUnityPlugin
     private void _ItemUpdateChange_SettingChange()
     {
         if (!ObjectDB.instance) return;
-        WeightBaseLogger.LogInfo("_ItemUpdateChange_SettingChange Joined");
+        WeightBaseLogger.LogDebug("_ItemUpdateChange_SettingChange");
         Helper.UpdateItemDatabase(ObjectDB.instance);
         var itemDrops = Resources.FindObjectsOfTypeAll<ItemDrop>();
         foreach (var item in itemDrops)

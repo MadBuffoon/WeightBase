@@ -22,7 +22,6 @@ public static class RegisterAndCheckVersion
         WeightBasePlugin.WeightBaseLogger.LogInfo("Invoking version check");
         ZPackage zpackage = new();
         zpackage.Write(WeightBasePlugin.ModVersion);
-        zpackage.Write(RpcHandlers.ComputeHashForMod().Replace("-", ""));
         peer.m_rpc.Invoke($"{WeightBasePlugin.ModName}_VersionCheck", zpackage);
     }
 }
@@ -80,15 +79,12 @@ public static class RpcHandlers
     public static void RPC_WeightBase_Version(ZRpc rpc, ZPackage pkg)
     {
         var version = pkg.ReadString();
-        string? hash = pkg.ReadString();
-
-        var hashForAssembly = ComputeHashForMod().Replace("-", "");
         WeightBasePlugin.WeightBaseLogger.LogInfo("Version check, local: " +
                                                   WeightBasePlugin.ModVersion +
                                                   ",  remote: " + version);
-        if (hash != hashForAssembly || version != WeightBasePlugin.ModVersion)
+        if (version != WeightBasePlugin.ModVersion)
         {
-            WeightBasePlugin.ConnectionError = $"{WeightBasePlugin.ModName} Installed: {WeightBasePlugin.ModVersion} {hashForAssembly}\n Needed: {version} {hash}";
+            WeightBasePlugin.ConnectionError = $"{WeightBasePlugin.ModName} Installed: {WeightBasePlugin.ModVersion}\n Needed: {version}";
             if (!ZNet.instance.IsServer()) return;
             // Different versions - force disconnect client from server
             WeightBasePlugin.WeightBaseLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...");
