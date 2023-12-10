@@ -55,16 +55,6 @@ namespace WeightBase.Patches
                 {
                     processItemData(itemData);
                 }
-
-                if (Chainloader.PluginInfos.ContainsKey("odinplusqol.OdinsExtendedInventory") ||
-                    Chainloader.PluginInfos.ContainsKey("Azumatt.AzuExtendedPlayerInventory"))
-                {
-                    foreach (var itemData in ___m_items)
-                    {
-                        itemData.m_gridPos.x -= 5;
-                        processItemData(itemData);
-                    }
-                }
             }
         }
 
